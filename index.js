@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 
 // Load environment variables
 dotenv.config();
@@ -33,7 +34,11 @@ app.post('/create-order', async (req, res) => {
     const order = await razorpay.orders.create(options);
     res.json(order);
   } catch (error) {
-    res.status(500).json({ error: 'Error creating Razorpay order', message: error.message });
+    console.error('Error creating Razorpay order', error);
+    res.status(500).json({
+      error: 'Error creating Razorpay order',
+      message: error.message,
+    });
   }
 });
 
@@ -41,14 +46,27 @@ app.post('/create-order', async (req, res) => {
 app.post('/payment-success', (req, res) => {
   const { payment_id, order_id, signature } = req.body;
 
-  // You should verify the signature using Razorpay's verification method
-  // This example doesn't include it for brevity, but you should implement signature verification
+  // Razorpay secret (from environment variables)
+  const secret = process.env.RAZORPAY_KEY_SECRET;
 
-  res.json({
-    message: 'Payment successful',
-    payment_id,
-    order_id,
-  });
+  // Generate the expected signature using payment_id and order_id
+  const generated_signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${order_id}|${payment_id}`)
+    .digest('hex');
+
+  // Verify the signature
+  if (generated_signature === signature) {
+    res.json({
+      message: 'Payment successful',
+      payment_id,
+      order_id,
+    });
+  } else {
+    res.status(400).json({
+      error: 'Signature verification failed',
+    });
+  }
 });
 
 // Start the server
