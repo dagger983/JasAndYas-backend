@@ -3,12 +3,16 @@ const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
+const cors = require('cors'); // Import the cors package
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const port = 3000;
+
+// Enable CORS for all origins (you can customize this)
+app.use(cors()); // Allows all domains to access your server
 
 // Initialize Razorpay with your keys
 const razorpay = new Razorpay({
