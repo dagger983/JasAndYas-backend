@@ -13,7 +13,6 @@ const port = 3000;
 
 // Enable CORS for specific domains (security best practice)
 const corsOptions = {
-  origin: ['https://your-frontend-domain.com'], // Add the domain where your frontend is hosted
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 };
