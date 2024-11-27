@@ -11,8 +11,13 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
-// Enable CORS for all origins (you can customize this)
-app.use(cors()); // Allows all domains to access your server
+// Enable CORS for specific domains (security best practice)
+const corsOptions = {
+  origin: ['https://your-frontend-domain.com'], // Add the domain where your frontend is hosted
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+};
+app.use(cors(corsOptions)); // Allows requests only from your frontend domain
 
 // Initialize Razorpay with your keys
 const razorpay = new Razorpay({
@@ -46,11 +51,10 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-// API endpoint to handle payment verification (callback from Razorpay)
+// API endpoint to handle payment success verification (callback from Razorpay)
 app.post('/payment-success', (req, res) => {
   const { payment_id, order_id, signature } = req.body;
 
-  // Razorpay secret (from environment variables)
   const secret = process.env.RAZORPAY_KEY_SECRET;
 
   // Generate the expected signature using payment_id and order_id
@@ -72,6 +76,32 @@ app.post('/payment-success', (req, res) => {
     });
   }
 });
+
+// Payment webhook to handle notifications from Razorpay
+app.post('/payment-webhook', (req, res) => {
+  const paymentDetails = req.body;
+
+  // Validate the payment signature
+  if (validatePaymentSignature(paymentDetails)) {
+    // Process the payment and update the database
+    res.status(200).send('Payment verified successfully');
+  } else {
+    res.status(400).send('Invalid payment signature');
+  }
+});
+
+// Function to validate Razorpay webhook signature
+function validatePaymentSignature(paymentDetails) {
+  const { payment_id, order_id, signature } = paymentDetails;
+
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const generated_signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${order_id}|${payment_id}`)
+    .digest('hex');
+
+  return generated_signature === signature;
+}
 
 // Start the server
 app.listen(port, () => {
