@@ -102,28 +102,35 @@ function validatePaymentSignature(paymentDetails) {
   return generated_signature === signature;
 }
 app.post('/verify-payment', async (req, res) => {
-  const { payment_id, order_id } = req.body;
+  const { payment_id, order_id, signature } = req.body;
   const secret = process.env.RAZORPAY_KEY_SECRET;
 
   try {
-    // Generate the expected signature
+    // Generate the expected signature using payment_id and order_id
     const generated_signature = crypto
       .createHmac('sha256', secret)
       .update(`${order_id}|${payment_id}`)
       .digest('hex');
 
-    // Get payment details from Razorpay
+    // Verify if the generated signature matches the signature from Razorpay
+    if (generated_signature !== signature) {
+      return res.status(400).json({ success: false, message: 'Signature verification failed' });
+    }
+
+    // Fetch payment details from Razorpay using the payment_id
     const payment = await razorpay.payments.fetch(payment_id);
 
-    // Check if payment is successful and the signature matches
-    if (payment.status === 'captured' && generated_signature === req.headers['x-razorpay-signature']) {
-      res.json({ success: true, message: 'Payment verified successfully.' });
+    // Check if payment status is captured (payment successful)
+    if (payment.status === 'captured') {
+      // Payment verified successfully
+      return res.json({ success: true, message: 'Payment verified successfully', payment });
     } else {
-      res.status(400).json({ success: false, message: 'Payment verification failed.' });
+      // Payment failed or not captured
+      return res.status(400).json({ success: false, message: 'Payment failed or not captured' });
     }
   } catch (error) {
     console.error('Error verifying payment:', error);
-    res.status(500).json({ success: false, message: 'Error verifying payment.' });
+    return res.status(500).json({ success: false, message: 'Error verifying payment', error: error.message });
   }
 });
 
