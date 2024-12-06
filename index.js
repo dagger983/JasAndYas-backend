@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
 
 // Load environment variables
 dotenv.config();
@@ -50,8 +50,7 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-
-
+// API endpoint to verify payment
 app.post('/verify-payment', async (req, res) => {
   const { payment_id, order_id, signature } = req.body;
   const secret = process.env.RAZORPAY_KEY_SECRET;
@@ -90,7 +89,6 @@ app.post('/verify-payment', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Error verifying payment', error: error.message });
   }
 });
-
 
 // Start the server
 app.listen(port, () => {
