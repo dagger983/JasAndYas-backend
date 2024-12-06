@@ -50,82 +50,39 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-// API endpoint to handle payment success verification (callback from Razorpay)
-app.post('/payment-success', (req, res) => {
-  const { payment_id, order_id, signature } = req.body;
 
-  const secret = process.env.RAZORPAY_KEY_SECRET;
 
-  // Generate the expected signature using payment_id and order_id
-  const generated_signature = crypto
-    .createHmac('sha256', secret)
-    .update(`${order_id}|${payment_id}`)
-    .digest('hex');
-
-  // Verify the signature
-  if (generated_signature === signature) {
-    res.json({
-      message: 'Payment successful',
-      payment_id,
-      order_id,
-    });
-  } else {
-    res.status(400).json({
-      error: 'Signature verification failed',
-    });
-  }
-});
-
-// Payment webhook to handle notifications from Razorpay
-app.post('/payment-webhook', (req, res) => {
-  const paymentDetails = req.body;
-
-  // Validate the payment signature
-  if (validatePaymentSignature(paymentDetails)) {
-    // Process the payment and update the database
-    res.status(200).send('Payment verified successfully');
-  } else {
-    res.status(400).send('Invalid payment signature');
-  }
-});
-
-// Function to validate Razorpay webhook signature
-function validatePaymentSignature(paymentDetails) {
-  const { payment_id, order_id, signature } = paymentDetails;
-
-  const secret = process.env.RAZORPAY_KEY_SECRET;
-  const generated_signature = crypto
-    .createHmac('sha256', secret)
-    .update(`${order_id}|${payment_id}`)
-    .digest('hex');
-
-  return generated_signature === signature;
-}
 app.post('/verify-payment', async (req, res) => {
   const { payment_id, order_id, signature } = req.body;
   const secret = process.env.RAZORPAY_KEY_SECRET;
 
+  // Log received data for debugging
+  console.log('Received order_id:', order_id);
+  console.log('Received payment_id:', payment_id);
+  console.log('Received signature:', signature);
+
   try {
-    // Generate the expected signature using payment_id and order_id
+    // Generate the expected signature
     const generated_signature = crypto
       .createHmac('sha256', secret)
       .update(`${order_id}|${payment_id}`)
       .digest('hex');
 
-    // Verify if the generated signature matches the signature from Razorpay
+    // Log the generated signature for debugging
+    console.log('Generated signature:', generated_signature);
+
+    // Compare the generated signature with the received signature
     if (generated_signature !== signature) {
       return res.status(400).json({ success: false, message: 'Signature verification failed' });
     }
 
-    // Fetch payment details from Razorpay using the payment_id
+    // Fetch payment details from Razorpay
     const payment = await razorpay.payments.fetch(payment_id);
 
-    // Check if payment status is captured (payment successful)
+    // Check if payment status is captured
     if (payment.status === 'captured') {
-      // Payment verified successfully
       return res.json({ success: true, message: 'Payment verified successfully', payment });
     } else {
-      // Payment failed or not captured
       return res.status(400).json({ success: false, message: 'Payment failed or not captured' });
     }
   } catch (error) {
@@ -133,6 +90,7 @@ app.post('/verify-payment', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Error verifying payment', error: error.message });
   }
 });
+
 
 // Start the server
 app.listen(port, () => {
