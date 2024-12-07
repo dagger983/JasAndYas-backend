@@ -50,45 +50,7 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-// API endpoint to verify payment
-app.post('/verify-payment', async (req, res) => {
-  const { payment_id, order_id, signature } = req.body;
-  const secret = process.env.RAZORPAY_KEY_SECRET;
 
-  // Log received data for debugging
-  console.log('Received order_id:', order_id);
-  console.log('Received payment_id:', payment_id);
-  console.log('Received signature:', signature);
-
-  try {
-    // Generate the expected signature
-    const generated_signature = crypto
-      .createHmac('sha256', secret)
-      .update(`${order_id}|${payment_id}`)
-      .digest('hex');
-
-    // Log the generated signature for debugging
-    console.log('Generated signature:', generated_signature);
-
-    // Compare the generated signature with the received signature
-    if (generated_signature !== signature) {
-      return res.status(400).json({ success: false, message: 'Signature verification failed' });
-    }
-
-    // Fetch payment details from Razorpay
-    const payment = await razorpay.payments.fetch(payment_id);
-
-    // Check if payment status is captured
-    if (payment.status === 'captured') {
-      return res.json({ success: true, message: 'Payment verified successfully', payment });
-    } else {
-      return res.status(400).json({ success: false, message: 'Payment failed or not captured' });
-    }
-  } catch (error) {
-    console.error('Error verifying payment:', error);
-    return res.status(500).json({ success: false, message: 'Error verifying payment', error: error.message });
-  }
-});
 
 // Start the server
 app.listen(port, () => {
