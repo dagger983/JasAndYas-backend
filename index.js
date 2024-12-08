@@ -4,17 +4,17 @@ const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mysql = require("mysql");
-const bcrypt = require('bcrypt');
-dotenv.config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+dotenv.config();
+
 const app = express();
 const port = 3306;
 const JWT_SECRET = process.env.JWT_SECRET || 'settle agama kadhalikatha bro life or wife ehh poidum';
 
 const corsOptions = {
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow Authorization header
 };
 app.use(cors(corsOptions));
 
@@ -27,7 +27,7 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error("Database connection failed: ");
+    console.error("Database connection failed: ", err);
     return;
   }
   console.log("Connected to database.");
@@ -38,15 +38,13 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-
 app.use(bodyParser.json());
 
-
 app.post('/create-order', async (req, res) => {
-  const { amount } = req.body; 
+  const { amount } = req.body;
 
   const options = {
-    amount: amount * 100,
+    amount: amount * 100, // Amount in paise
     currency: 'INR',
     receipt: `order_rcptid_${Math.random()}`,
   };
@@ -56,12 +54,10 @@ app.post('/create-order', async (req, res) => {
     res.json(order);
   } catch (error) {
     console.error('Error creating Razorpay order', error);
-    res.status(500).json({
-      error: 'Error creating Razorpay order',
-      message: error.message,
-    });
+    res.status(500).json({ error: 'Error creating Razorpay order', message: error.message });
   }
 });
+
 app.post('/signup', async (req, res) => {
   const { username, mobile, password } = req.body;
 
@@ -70,24 +66,22 @@ app.post('/signup', async (req, res) => {
   }
 
   try {
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const query = 'INSERT INTO users (username, mobile, password) VALUES (?, ?, ?)';
+    
     db.query(query, [username, mobile, hashedPassword], (err, result) => {
       if (err) {
         console.error('Error inserting user:', err);
-        return res.status(500).json({ error: 'Failed to register user' });
+        return res.status(500).json({ error: 'Failed to register user', details: err });
       }
       res.status(201).json({ message: 'User registered successfully' });
     });
   } catch (error) {
     console.error('Error hashing password:', error);
-    res.status(500).json({ error: 'Failed to register user' });
+    res.status(500).json({ error: 'Failed to register user', details: error.message });
   }
 });
 
-// Login endpoint with JWT generation
 app.post('/login', (req, res) => {
   const { mobile, password } = req.body;
 
@@ -99,7 +93,7 @@ app.post('/login', (req, res) => {
   db.query(query, [mobile], async (err, results) => {
     if (err) {
       console.error('Error querying database:', err);
-      return res.status(500).json({ error: 'Failed to log in' });
+      return res.status(500).json({ error: 'Failed to log in', details: err });
     }
 
     if (results.length === 0) {
@@ -107,26 +101,24 @@ app.post('/login', (req, res) => {
     }
 
     const user = results[0];
-
+    
     try {
-      // Compare the provided password with the hashed password in the database
       const isPasswordValid = await bcrypt.compare(password, user.password);
-
+      
       if (!isPasswordValid) {
         return res.status(401).json({ error: 'Invalid mobile or password' });
       }
 
-      // Generate JWT token
       const token = jwt.sign(
         { id: user.id, username: user.username, mobile: user.mobile },
         JWT_SECRET,
-        { expiresIn: '1h' } // Token expires in 1 hour
+        { expiresIn: '1h' }
       );
 
       res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
       console.error('Error comparing password:', error);
-      res.status(500).json({ error: 'Failed to log in' });
+      res.status(500).json({ error: 'Failed to log in', details: error.message });
     }
   });
 });
