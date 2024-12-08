@@ -123,28 +123,6 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Middleware to verify JWT
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-
-  if (!token) {
-    return res.status(403).json({ error: 'Access denied, no token provided' });
-  }
-
-  try {
-    const decoded = jwt.verify(token.split(' ')[1], JWT_SECRET); // Extract token from Bearer
-    req.user = decoded; // Attach user information to the request
-    next();
-  } catch (err) {
-    res.status(403).json({ error: 'Invalid or expired token' });
-  }
-};
-
-// Example of a protected route
-app.get('/protected', authenticateToken, (req, res) => {
-  res.status(200).json({ message: 'Access granted', user: req.user });
-});
-
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
