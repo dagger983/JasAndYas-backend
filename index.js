@@ -85,7 +85,6 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// Login route with password comparison and JWT token generation
 app.post('/login', (req, res) => {
   const { mobile, password } = req.body;
 
@@ -116,7 +115,6 @@ app.post('/login', (req, res) => {
     const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
 
     res.status(200).json({
-      message: `Welcome, ${user.username}!`,
       token, // Send JWT token
       username: user.username,
     });
