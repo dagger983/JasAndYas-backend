@@ -77,39 +77,18 @@ app.post('/signup', (req, res) => {
   });
 });
 
-// Login route without password hashing (direct comparison)
-app.post('/login', (req, res) => {
-  const { mobile, password } = req.body;
 
-  if (!mobile || !password) {
-    return res.status(400).json({ error: 'Mobile and password are required' });
-  }
 
-  const query = 'SELECT * FROM users WHERE mobile = ?';
-  db.query(query, [mobile], (err, results) => {
+app.get('/users', (req, res) => {
+  const query = 'SELECT id, username, mobile, password FROM users'; // Includes password
+
+  db.query(query, (err, results) => {
     if (err) {
-      console.error('Error querying database:', err);
-      return res.status(500).json({ error: 'Failed to log in', details: err });
+      console.error('Error fetching users:', err);
+      return res.status(500).json({ error: 'Failed to fetch users', details: err });
     }
 
-    if (results.length === 0) {
-      return res.status(401).json({ error: 'Invalid mobile or password' });
-    }
-
-    const user = results[0];
-
-    // Directly compare the password (No bcrypt compare since it's plain text)
-    if (password !== user.password) {
-      return res.status(401).json({ error: 'Invalid mobile or password' });
-    }
-
-    // Generate a JWT token and send it in the response
-    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).json({
-      token, // Send JWT token
-      username: user.username,
-    });
+    res.status(200).json(results); // Return the list of users including passwords
   });
 });
 
