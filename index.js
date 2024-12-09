@@ -59,32 +59,25 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-// Signup route
-app.post('/signup', async (req, res) => {
+
+app.post('/signup', (req, res) => {
   const { username, mobile, password } = req.body;
 
   if (!username || !mobile || !password) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  try {
-    // Hash the password before saving it
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const query = 'INSERT INTO users (username, mobile, password) VALUES (?, ?, ?)';
-    db.query(query, [username, mobile, hashedPassword], (err, result) => {
-      if (err) {
-        console.error('Error inserting user:', err);
-        return res.status(500).json({ error: 'Failed to register user', details: err });
-      }
-      res.status(201).json({ message: 'User registered successfully' });
-    });
-  } catch (error) {
-    console.error('Error hashing password:', error);
-    res.status(500).json({ error: 'Error processing request', details: error.message });
-  }
+  const query = 'INSERT INTO users (username, mobile, password) VALUES (?, ?, ?)';
+  db.query(query, [username, mobile, password], (err, result) => {
+    if (err) {
+      console.error('Error inserting user:', err);
+      return res.status(500).json({ error: 'Failed to register user', details: err });
+    }
+    res.status(201).json({ message: 'User registered successfully' });
+  });
 });
 
+// Login route without password hashing (direct comparison)
 app.post('/login', (req, res) => {
   const { mobile, password } = req.body;
 
@@ -93,7 +86,7 @@ app.post('/login', (req, res) => {
   }
 
   const query = 'SELECT * FROM users WHERE mobile = ?';
-  db.query(query, [mobile], async (err, results) => {
+  db.query(query, [mobile], (err, results) => {
     if (err) {
       console.error('Error querying database:', err);
       return res.status(500).json({ error: 'Failed to log in', details: err });
@@ -105,9 +98,8 @@ app.post('/login', (req, res) => {
 
     const user = results[0];
 
-    // Compare the hashed password with bcrypt
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+    // Directly compare the password (No bcrypt compare since it's plain text)
+    if (password !== user.password) {
       return res.status(401).json({ error: 'Invalid mobile or password' });
     }
 
@@ -120,6 +112,7 @@ app.post('/login', (req, res) => {
     });
   });
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
