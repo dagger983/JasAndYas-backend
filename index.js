@@ -95,28 +95,47 @@ app.get('/users', (req, res) => {
 
 // POST API to add a new admin record
 app.post('/adminData', (req, res) => {
-  const { username, mobile, pickup_location, drop_location } = req.body;
+  const {
+    username, 
+    mobile, 
+    pickup_location_name, 
+    pickup_latitude, 
+    pickup_longitude, 
+    drop_location_name, 
+    drop_latitude, 
+    drop_longitude
+  } = req.body;
 
-  // Validate input
-  if (!username || !mobile || !pickup_location || !drop_location) {
+  if (!username || !mobile || !pickup_location_name || !pickup_latitude || !pickup_longitude || !drop_location_name || !drop_latitude || !drop_longitude) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = 'INSERT INTO adminData (username, mobile, pickup_location, drop_location) VALUES (?, ?, ?, ?)';
+  const query = `
+    INSERT INTO adminData 
+    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
   
-  db.query(query, [username, mobile, pickup_location, drop_location], (err, result) => {
+  db.query(query, [
+    username, 
+    mobile, 
+    pickup_location_name, 
+    pickup_latitude, 
+    pickup_longitude, 
+    drop_location_name, 
+    drop_latitude, 
+    drop_longitude
+  ], (err, result) => {
     if (err) {
       console.error('Error inserting data into adminData:', err);
       return res.status(500).json({ error: 'Failed to add data', details: err });
     }
 
-    // Log success for debugging
     console.log(`Data inserted successfully with ID: ${result.insertId}`);
-
-    // Return successful response with insertId
     return res.status(201).json({ message: 'Data added successfully', id: result.insertId });
   });
 });
+
 
 // GET API to retrieve all admin records
 app.get('/adminData', (req, res) => {
