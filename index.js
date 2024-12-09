@@ -80,7 +80,7 @@ app.post('/signup', (req, res) => {
 
 
 app.get('/users', (req, res) => {
-  const query = 'SELECT id, username, mobile, password FROM users'; // Includes password
+  const query = 'SELECT id, username, mobile, password FROM users';
 
   db.query(query, (err, results) => {
     if (err) {
@@ -89,6 +89,41 @@ app.get('/users', (req, res) => {
     }
 
     res.status(200).json(results); 
+  });
+});
+
+
+// POST API to add a new admin record
+app.post('/adminData', (req, res) => {
+  const { username, mobile, pickup_location, drop_location } = req.body;
+
+  // Validate input
+  if (!username || !mobile || !pickup_location || !drop_location) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = 'INSERT INTO adminData (username, mobile, pickup_location, drop_location) VALUES (?, ?, ?, ?)';
+  
+  db.query(query, [username, mobile, pickup_location, drop_location], (err, result) => {
+    if (err) {
+      console.error('Error inserting data into adminData:', err);
+      return res.status(500).json({ error: 'Failed to add data', details: err });
+    }
+    res.status(201).json({ message: 'Data added successfully', id: result.insertId });
+  });
+});
+
+// GET API to retrieve all admin records
+app.get('/adminData', (req, res) => {
+  const query = 'SELECT * FROM adminData';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching data from adminData:', err);
+      return res.status(500).json({ error: 'Failed to fetch data', details: err });
+    }
+
+    res.status(200).json(results);
   });
 });
 
