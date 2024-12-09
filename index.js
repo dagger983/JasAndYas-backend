@@ -109,7 +109,12 @@ app.post('/adminData', (req, res) => {
       console.error('Error inserting data into adminData:', err);
       return res.status(500).json({ error: 'Failed to add data', details: err });
     }
-    res.status(201).json({ message: 'Data added successfully', id: result.insertId });
+
+    // Log success for debugging
+    console.log(`Data inserted successfully with ID: ${result.insertId}`);
+
+    // Return successful response with insertId
+    return res.status(201).json({ message: 'Data added successfully', id: result.insertId });
   });
 });
 
