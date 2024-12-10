@@ -261,7 +261,12 @@ app.post('/rideData', (req, res) => {
       return res.status(500).json({ error: 'Failed to add ride data', details: err });
     }
 
-    res.status(201).json({ message: 'Ride added successfully', id: result.insertId });
+    res.status(201).json({
+      message: 'Ride Booked successfully',
+      id: result.insertId,
+      data: { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile },
+    });
+    
   });
 });
 
