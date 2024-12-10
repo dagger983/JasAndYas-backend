@@ -151,6 +151,82 @@ app.get('/adminData', (req, res) => {
   });
 });
 
+// POST API to add a new driver
+app.post('/autoData', (req, res) => {
+  const { Driver, Mobile, Password } = req.body;
+
+  if (!Driver || !Mobile || !Password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = 'INSERT INTO autoData (Driver, Mobile, Password) VALUES (?, ?, ?)';
+  db.query(query, [Driver, Mobile, Password], (err, result) => {
+    if (err) {
+      console.error('Error inserting driver:', err);
+      return res.status(500).json({ error: 'Failed to add driver', details: err });
+    }
+
+    res.status(201).json({ message: 'Driver added successfully', id: result.insertId });
+  });
+});
+
+// GET API to retrieve all drivers
+app.get('/autoData', (req, res) => {
+  const query = 'SELECT id, Driver, Mobile, Password FROM autoData';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching drivers:', err);
+      return res.status(500).json({ error: 'Failed to fetch drivers', details: err });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// PUT API to update a driver's details
+app.put('/autoData/:id', (req, res) => {
+  const { id } = req.params;
+  const { Driver, Mobile, Password } = req.body;
+
+  if (!Driver || !Mobile || !Password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = 'UPDATE autoData SET Driver = ?, Mobile = ?, Password = ? WHERE id = ?';
+  db.query(query, [Driver, Mobile, Password, id], (err, result) => {
+    if (err) {
+      console.error('Error updating driver:', err);
+      return res.status(500).json({ error: 'Failed to update driver', details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Driver not found' });
+    }
+
+    res.status(200).json({ message: 'Driver updated successfully' });
+  });
+});
+
+// DELETE API to remove a driver
+app.delete('/autoData/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM autoData WHERE id = ?';
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error deleting driver:', err);
+      return res.status(500).json({ error: 'Failed to delete driver', details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Driver not found' });
+    }
+
+    res.status(200).json({ message: 'Driver deleted successfully' });
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
