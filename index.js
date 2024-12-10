@@ -265,7 +265,6 @@ app.post('/rideData', (req, res) => {
   });
 });
 
-// GET API to retrieve all rides
 app.get('/rideData', (req, res) => {
   const query = 'SELECT * FROM rideData';
 
@@ -279,7 +278,6 @@ app.get('/rideData', (req, res) => {
   });
 });
 
-// GET API to retrieve a single ride by ID
 app.get('/rideData/:id', (req, res) => {
   const { id } = req.params;
 
@@ -299,7 +297,6 @@ app.get('/rideData/:id', (req, res) => {
   });
 });
 
-// PUT API to update a ride's details
 app.put('/rideData/:id', (req, res) => {
   const { id } = req.params;
   const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile } = req.body;
@@ -336,7 +333,6 @@ app.put('/rideData/:id', (req, res) => {
   });
 });
 
-// DELETE API to remove a ride by ID
 app.delete('/rideData/:id', (req, res) => {
   const { id } = req.params;
 
