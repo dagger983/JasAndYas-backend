@@ -99,7 +99,6 @@ app.get('/users', (req, res) => {
 });
 
 
-// POST API to add a new admin record
 app.post('/adminData', (req, res) => {
   const {
     username, 
@@ -109,17 +108,18 @@ app.post('/adminData', (req, res) => {
     pickup_longitude, 
     drop_location_name, 
     drop_latitude, 
-    drop_longitude
+    drop_longitude,
+    distance  // Accept distance from request body
   } = req.body;
 
-  if (!username || !mobile || !pickup_location_name || !pickup_latitude || !pickup_longitude || !drop_location_name || !drop_latitude || !drop_longitude) {
-    return res.status(400).json({ error: 'All fields are required' });
+  if (!username || !mobile || !pickup_location_name || !pickup_latitude || !pickup_longitude || !drop_location_name || !drop_latitude || !drop_longitude || distance === undefined) {
+    return res.status(400).json({ error: 'All fields are required, including distance' });
   }
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   
   db.query(query, [
@@ -130,7 +130,8 @@ app.post('/adminData', (req, res) => {
     pickup_longitude, 
     drop_location_name, 
     drop_latitude, 
-    drop_longitude
+    drop_longitude,
+    distance  // Insert the provided distance
   ], (err, result) => {
     if (err) {
       console.error('Error inserting data into adminData:', err);
@@ -141,6 +142,7 @@ app.post('/adminData', (req, res) => {
     return res.status(201).json({ message: 'Data added successfully', id: result.insertId });
   });
 });
+
 
 
 // GET API to retrieve all admin records
