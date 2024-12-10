@@ -3,8 +3,6 @@ const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
 const mysql = require("mysql");
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 dotenv.config();
 
 const app = express();
