@@ -364,6 +364,41 @@ app.post('/store-otp', (req, res) => {
   });
 });
 
+app.post('/verify-otp', (req, res) => {
+  const { mobile, otp } = req.body;
+
+  // Validate required fields
+  if (!mobile || !otp) {
+    return res.status(400).json({ error: 'Mobile and OTP are required' });
+  }
+
+  // Query to find the OTP from the otpData table based on mobile
+  const query = 'SELECT * FROM otpData WHERE mobile = ? ORDER BY id DESC LIMIT 1';
+
+  db.query(query, [mobile], (err, results) => {
+    if (err) {
+      console.error('Error retrieving OTP:', err);
+      return res.status(500).json({ error: 'Failed to verify OTP', details: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'OTP not found for this mobile number' });
+    }
+
+    const storedOtp = results[0].otp;  
+    if (otp !== storedOtp) {
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+
+    res.status(200).json({
+      message: 'OTP verified successfully',
+    });
+  });
+});
+
+
+
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
