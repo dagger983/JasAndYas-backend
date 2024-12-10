@@ -143,6 +143,29 @@ app.post('/adminData', (req, res) => {
   });
 });
 
+app.delete('/adminData/:id', (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID is required to delete a record' });
+  }
+
+  const query = `DELETE FROM adminData WHERE id = ?`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error deleting data from adminData:', err);
+      return res.status(500).json({ error: 'Failed to delete data', details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No record found with the specified ID' });
+    }
+
+    console.log(`Record with ID: ${id} deleted successfully`);
+    return res.status(200).json({ message: 'Record deleted successfully' });
+  });
+});
 
 
 // GET API to retrieve all admin records
