@@ -168,7 +168,6 @@ app.delete('/adminData/:id', (req, res) => {
 });
 
 
-// GET API to retrieve all admin records
 app.get('/adminData', (req, res) => {
   const query = 'SELECT * FROM adminData';
 
@@ -182,7 +181,6 @@ app.get('/adminData', (req, res) => {
   });
 });
 
-// POST API to add a new driver
 app.post('/autoData', (req, res) => {
   const { Driver, Mobile, Password } = req.body;
 
@@ -201,7 +199,6 @@ app.post('/autoData', (req, res) => {
   });
 });
 
-// GET API to retrieve all drivers
 app.get('/autoData', (req, res) => {
   const query = 'SELECT id, Driver, Mobile, Password FROM autoData';
 
@@ -215,7 +212,6 @@ app.get('/autoData', (req, res) => {
   });
 });
 
-// PUT API to update a driver's details
 app.put('/autoData/:id', (req, res) => {
   const { id } = req.params;
   const { Driver, Mobile, Password } = req.body;
@@ -239,7 +235,6 @@ app.put('/autoData/:id', (req, res) => {
   });
 });
 
-// DELETE API to remove a driver
 app.delete('/autoData/:id', (req, res) => {
   const { id } = req.params;
 
@@ -258,7 +253,6 @@ app.delete('/autoData/:id', (req, res) => {
   });
 });
 
-// POST API to add a new ride
 app.post('/rideData', (req, res) => {
   const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile } = req.body;
 
@@ -344,8 +338,6 @@ app.delete('/rideData/:id', (req, res) => {
     res.status(200).json({ message: 'Ride deleted successfully' });
   });
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
