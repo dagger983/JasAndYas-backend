@@ -14,15 +14,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'settle agama kadhalikatha bro life
 
 const cors = require('cors');
 
-// Allow all origins or specify only your frontend origin
+// CORS options configuration
 const corsOptions = {
-  origin: '*', // You can specify your frontend URL, e.g., "http://localhost:3000"
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: '*',  // Allow all origins or specify the frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow all required HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Add necessary headers
 };
 
+// Use CORS middleware
+app.options('*', cors(corsOptions));  // Handle preflight requests
 app.use(cors(corsOptions));
-
 
 const db = mysql.createConnection({
   host: "bf9cyakdy8vjfwfzk6fu-mysql.services.clever-cloud.com",
