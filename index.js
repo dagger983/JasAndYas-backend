@@ -12,11 +12,17 @@ const app = express();
 const port = 3306;
 const JWT_SECRET = process.env.JWT_SECRET || 'settle agama kadhalikatha bro life or wife ehh poidum';
 
+const cors = require('cors');
+
+// Allow all origins or specify only your frontend origin
 const corsOptions = {
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow Authorization header
+  origin: '*', // You can specify your frontend URL, e.g., "http://localhost:3000"
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
 app.use(cors(corsOptions));
+
 
 const db = mysql.createConnection({
   host: "bf9cyakdy8vjfwfzk6fu-mysql.services.clever-cloud.com",
