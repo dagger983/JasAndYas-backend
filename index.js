@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv');
-const cors = require('cors');
 const mysql = require("mysql");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -299,42 +298,6 @@ app.get('/rideData/:id', (req, res) => {
     }
 
     res.status(200).json(result[0]);
-  });
-});
-
-app.put('/rideData/:id', (req, res) => {
-  const { id } = req.params;
-  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile } = req.body;
-
-  if (!customer || !mobile || !pickup_location || !drop_location || !auto_driver || !driver_mobile) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  const query = `
-    UPDATE rideData 
-    SET customer = ?, mobile = ?, pickup_location = ?, drop_location = ?, auto_driver = ?, driver_mobile = ? 
-    WHERE id = ?
-  `;
-  
-  db.query(query, [
-    customer, 
-    mobile, 
-    pickup_location, 
-    drop_location, 
-    auto_driver, 
-    driver_mobile, 
-    id
-  ], (err, result) => {
-    if (err) {
-      console.error('Error updating ride data:', err);
-      return res.status(500).json({ error: 'Failed to update ride data', details: err });
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Ride not found' });
-    }
-
-    res.status(200).json({ message: 'Ride updated successfully' });
   });
 });
 
