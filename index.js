@@ -9,7 +9,6 @@ dotenv.config();
 
 const app = express();
 const port = 3306;
-const JWT_SECRET = process.env.JWT_SECRET || 'settle agama kadhalikatha bro life or wife ehh poidum';
 
 const cors = require('cors');
 
