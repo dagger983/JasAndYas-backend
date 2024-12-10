@@ -396,7 +396,29 @@ app.post('/verify-otp', (req, res) => {
   });
 });
 
+app.post('/ok-otp', (req, res) => {
+  const { drive, otp, ok } = req.body;
 
+  // Validate required fields
+  if (!drive || !otp || ok === undefined) {
+    return res.status(400).json({ error: 'Drive, OTP, and OK are required' });
+  }
+
+  // Insert data into the auto_ok table
+  const query = 'INSERT INTO auto_ok (drive, otp, ok) VALUES (?, ?, ?)';
+  
+  db.query(query, [drive, otp, ok], (err, result) => {
+    if (err) {
+      console.error('Error storing details:', err);
+      return res.status(500).json({ error: 'Failed to store details', details: err });
+    }
+
+    // Respond with success message and inserted ID
+    res.status(201).json({
+      message: 'OTP Verified successfully'
+    });
+  });
+});
 
 
 app.listen(port, () => {
