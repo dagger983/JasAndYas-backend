@@ -339,6 +339,31 @@ app.delete('/rideData/:id', (req, res) => {
   });
 });
 
+app.post('/store-otp', (req, res) => {
+  const { username, mobile, otp } = req.body;
+
+  // Validate required fields
+  if (!username || !mobile || !otp) {
+    return res.status(400).json({ error: 'Username, mobile, and otp are required' });
+  }
+
+  // Insert OTP into the otpData table
+  const query = 'INSERT INTO otpData (username, mobile, otp) VALUES (?, ?, ?)';
+  
+  db.query(query, [username, mobile, otp], (err, result) => {
+    if (err) {
+      console.error('Error storing OTP:', err);
+      return res.status(500).json({ error: 'Failed to store OTP', details: err });
+    }
+
+    // Respond with success message and inserted ID
+    res.status(201).json({
+      message: 'OTP stored successfully',
+      id: result.insertId
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
