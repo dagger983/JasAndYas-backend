@@ -234,6 +234,129 @@ app.delete('/autoData/:id', (req, res) => {
   });
 });
 
+// POST API to add a new ride
+app.post('/rideData', (req, res) => {
+  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile } = req.body;
+
+  if (!customer || !mobile || !pickup_location || !drop_location || !auto_driver || !driver_mobile) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = `
+    INSERT INTO rideData 
+    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  
+  db.query(query, [
+    customer, 
+    mobile, 
+    pickup_location, 
+    drop_location, 
+    auto_driver, 
+    driver_mobile
+  ], (err, result) => {
+    if (err) {
+      console.error('Error inserting ride data:', err);
+      return res.status(500).json({ error: 'Failed to add ride data', details: err });
+    }
+
+    res.status(201).json({ message: 'Ride added successfully', id: result.insertId });
+  });
+});
+
+// GET API to retrieve all rides
+app.get('/rideData', (req, res) => {
+  const query = 'SELECT * FROM rideData';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching rides:', err);
+      return res.status(500).json({ error: 'Failed to fetch rides', details: err });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// GET API to retrieve a single ride by ID
+app.get('/rideData/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'SELECT * FROM rideData WHERE id = ?';
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error fetching ride:', err);
+      return res.status(500).json({ error: 'Failed to fetch ride', details: err });
+    }
+
+    if (!result.length) {
+      return res.status(404).json({ error: 'Ride not found' });
+    }
+
+    res.status(200).json(result[0]);
+  });
+});
+
+// PUT API to update a ride's details
+app.put('/rideData/:id', (req, res) => {
+  const { id } = req.params;
+  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile } = req.body;
+
+  if (!customer || !mobile || !pickup_location || !drop_location || !auto_driver || !driver_mobile) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = `
+    UPDATE rideData 
+    SET customer = ?, mobile = ?, pickup_location = ?, drop_location = ?, auto_driver = ?, driver_mobile = ? 
+    WHERE id = ?
+  `;
+  
+  db.query(query, [
+    customer, 
+    mobile, 
+    pickup_location, 
+    drop_location, 
+    auto_driver, 
+    driver_mobile, 
+    id
+  ], (err, result) => {
+    if (err) {
+      console.error('Error updating ride data:', err);
+      return res.status(500).json({ error: 'Failed to update ride data', details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Ride not found' });
+    }
+
+    res.status(200).json({ message: 'Ride updated successfully' });
+  });
+});
+
+// DELETE API to remove a ride by ID
+app.delete('/rideData/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM rideData WHERE id = ?';
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error deleting ride:', err);
+      return res.status(500).json({ error: 'Failed to delete ride', details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Ride not found' });
+    }
+
+    res.status(200).json({ message: 'Ride deleted successfully' });
+  });
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
