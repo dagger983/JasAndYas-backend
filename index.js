@@ -109,7 +109,8 @@ app.post("/adminData", (req, res) => {
     drop_location_name,
     drop_latitude,
     drop_longitude,
-    distance, // Accept distance from request body
+    distance,
+    mode, // Add mode to the request body
   } = req.body;
 
   if (
@@ -121,17 +122,18 @@ app.post("/adminData", (req, res) => {
     !drop_location_name ||
     !drop_latitude ||
     !drop_longitude ||
-    distance === undefined
+    distance === undefined ||
+    !mode // Ensure that mode is also provided
   ) {
     return res
       .status(400)
-      .json({ error: "All fields are required, including distance" });
+      .json({ error: "All fields are required, including distance and mode" });
   }
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance, mode) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -145,7 +147,8 @@ app.post("/adminData", (req, res) => {
       drop_location_name,
       drop_latitude,
       drop_longitude,
-      distance, // Insert the provided distance
+      distance,
+      mode, // Insert the provided mode value
     ],
     (err, result) => {
       if (err) {
@@ -190,6 +193,7 @@ app.delete("/adminData/:id", (req, res) => {
     return res.status(200).json({ message: "Record deleted successfully" });
   });
 });
+
 
 app.get("/adminData", (req, res) => {
   const query = "SELECT * FROM adminData";
