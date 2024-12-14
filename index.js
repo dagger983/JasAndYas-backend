@@ -302,6 +302,7 @@ app.post("/rideData", (req, res) => {
     drop_location,
     auto_driver,
     driver_mobile,
+    mode, // Add mode to the request body
   } = req.body;
 
   if (
@@ -310,15 +311,16 @@ app.post("/rideData", (req, res) => {
     !pickup_location ||
     !drop_location ||
     !auto_driver ||
-    !driver_mobile
+    !driver_mobile ||
+    !mode // Ensure that mode is also provided
   ) {
-    return res.status(400).json({ error: "All fields are required" });
+    return res.status(400).json({ error: "All fields are required, including mode" });
   }
 
   const query = `
     INSERT INTO rideData 
-    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile) 
-    VALUES (?, ?, ?, ?, ?, ?)
+    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -330,6 +332,7 @@ app.post("/rideData", (req, res) => {
       drop_location,
       auto_driver,
       driver_mobile,
+      mode, // Insert the provided mode value
     ],
     (err, result) => {
       if (err) {
@@ -349,6 +352,7 @@ app.post("/rideData", (req, res) => {
           drop_location,
           auto_driver,
           driver_mobile,
+          mode, // Include mode in the response data
         },
       });
     }
@@ -409,72 +413,6 @@ app.delete("/rideData/:id", (req, res) => {
     }
 
     res.status(200).json({ message: "Ride deleted successfully" });
-  });
-});
-
-app.post("/store-otp", (req, res) => {
-  const { username, mobile, otp } = req.body;
-
-  // Validate required fields
-  if (!username || !mobile || !otp) {
-    return res
-      .status(400)
-      .json({ error: "Username, mobile, and otp are required" });
-  }
-
-  // Insert OTP into the otpData table
-  const query = "INSERT INTO otpData (username, mobile, otp) VALUES (?, ?, ?)";
-
-  db.query(query, [username, mobile, otp], (err, result) => {
-    if (err) {
-      console.error("Error storing OTP:", err);
-      return res
-        .status(500)
-        .json({ error: "Failed to store OTP", details: err });
-    }
-
-    // Respond with success message and inserted ID
-    res.status(201).json({
-      message: "OTP stored successfully",
-      id: result.insertId,
-    });
-  });
-});
-
-app.post("/verify-otp", (req, res) => {
-  const { mobile, otp } = req.body;
-
-  // Validate required fields
-  if (!mobile || !otp) {
-    return res.status(400).json({ error: "Mobile and OTP are required" });
-  }
-
-  // Query to find the OTP from the otpData table based on mobile
-  const query =
-    "SELECT * FROM otpData WHERE mobile = ? ORDER BY id DESC LIMIT 1";
-
-  db.query(query, [mobile], (err, results) => {
-    if (err) {
-      console.error("Error retrieving OTP:", err);
-      return res
-        .status(500)
-        .json({ error: "Failed to verify OTP", details: err });
-    }
-
-    if (results.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "OTP not found for this mobile number" });
-    }
-
-    const storedOtp = results[0].otp;
-    if (otp !== storedOtp) {
-      return res.status(400).json({ error: "Invalid OTP" });
-    }
-
-    res.status(200).json({
-      message: "OTP verified successfully",
-    });
   });
 });
 
