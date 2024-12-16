@@ -293,7 +293,6 @@ app.delete("/autoData/:id", (req, res) => {
     res.status(200).json({ message: "Driver deleted successfully" });
   });
 });
-
 app.post("/rideData", (req, res) => {
   const {
     customer,
@@ -303,8 +302,10 @@ app.post("/rideData", (req, res) => {
     auto_driver,
     driver_mobile,
     mode, // Add mode to the request body
+    otp,  // Add OTP field to request body for saving
   } = req.body;
 
+  // Check if all required fields are provided, including OTP
   if (
     !customer ||
     !mobile ||
@@ -312,15 +313,16 @@ app.post("/rideData", (req, res) => {
     !drop_location ||
     !auto_driver ||
     !driver_mobile ||
-    !mode // Ensure that mode is also provided
+    !mode ||
+    !otp // Ensure OTP is included in the request body
   ) {
-    return res.status(400).json({ error: "All fields are required, including mode" });
+    return res.status(400).json({ error: "All fields are required, including mode and OTP" });
   }
 
   const query = `
     INSERT INTO rideData 
-    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, otp) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -333,6 +335,7 @@ app.post("/rideData", (req, res) => {
       auto_driver,
       driver_mobile,
       mode, // Insert the provided mode value
+      otp  // Insert the OTP received in the request
     ],
     (err, result) => {
       if (err) {
@@ -353,11 +356,13 @@ app.post("/rideData", (req, res) => {
           auto_driver,
           driver_mobile,
           mode, // Include mode in the response data
+          otp  // Include OTP in the response (optional)
         },
       });
     }
   );
 });
+
 
 app.get("/rideData", (req, res) => {
   const query = "SELECT * FROM rideData";
@@ -416,31 +421,7 @@ app.delete("/rideData/:id", (req, res) => {
   });
 });
 
-app.post("/ok-otp", (req, res) => {
-  const { drive, otp, ok } = req.body;
 
-  // Validate required fields
-  if (!drive || !otp || ok === undefined) {
-    return res.status(400).json({ error: "Drive, OTP, and OK are required" });
-  }
-
-  // Insert data into the auto_ok table
-  const query = "INSERT INTO auto_ok (drive, otp, ok) VALUES (?, ?, ?)";
-
-  db.query(query, [drive, otp, ok], (err, result) => {
-    if (err) {
-      console.error("Error storing details:", err);
-      return res
-        .status(500)
-        .json({ error: "Failed to store details", details: err });
-    }
-
-    // Respond with success message and inserted ID
-    res.status(201).json({
-      message: "OTP Verified successfully",
-    });
-  });
-});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
