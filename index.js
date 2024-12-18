@@ -43,7 +43,6 @@ const razorpay = new Razorpay({
 
 app.use(bodyParser.json());
 
-// Route to create Razorpay order
 app.post("/create-order", async (req, res) => {
   const { amount } = req.body;
 
@@ -63,7 +62,6 @@ app.post("/create-order", async (req, res) => {
       .json({ error: "Error creating Razorpay order", message: error.message });
   }
 });
-
 app.post("/signup", (req, res) => {
   const { username, mobile, password, pin } = req.body;
 
@@ -83,7 +81,6 @@ app.post("/signup", (req, res) => {
     res.status(201).json({ message: "User registered successfully" });
   });
 });
-
 app.get("/users", (req, res) => {
   const query = "SELECT id, username, mobile, password , pin FROM users";
 
@@ -98,7 +95,6 @@ app.get("/users", (req, res) => {
     res.status(200).json(results);
   });
 });
-
 app.post("/adminData", (req, res) => {
   const {
     username,
@@ -110,7 +106,8 @@ app.post("/adminData", (req, res) => {
     drop_latitude,
     drop_longitude,
     distance,
-    mode, // Add mode to the request body
+    mode,
+    otp // Add mode to the request body
   } = req.body;
 
   if (
@@ -123,7 +120,8 @@ app.post("/adminData", (req, res) => {
     !drop_latitude ||
     !drop_longitude ||
     distance === undefined ||
-    !mode // Ensure that mode is also provided
+    !mode ||
+    !otp
   ) {
     return res
       .status(400)
@@ -132,7 +130,7 @@ app.post("/adminData", (req, res) => {
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance, mode) 
+    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance, mode , otp) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -148,7 +146,8 @@ app.post("/adminData", (req, res) => {
       drop_latitude,
       drop_longitude,
       distance,
-      mode, // Insert the provided mode value
+      mode, 
+      otp
     ],
     (err, result) => {
       if (err) {
@@ -165,7 +164,6 @@ app.post("/adminData", (req, res) => {
     }
   );
 });
-
 app.delete("/adminData/:id", (req, res) => {
   const { id } = req.params;
 
@@ -193,8 +191,6 @@ app.delete("/adminData/:id", (req, res) => {
     return res.status(200).json({ message: "Record deleted successfully" });
   });
 });
-
-
 app.get("/adminData", (req, res) => {
   const query = "SELECT * FROM adminData";
 
@@ -209,7 +205,6 @@ app.get("/adminData", (req, res) => {
     res.status(200).json(results);
   });
 });
-
 app.post("/autoData", (req, res) => {
   const { Driver, Mobile, Password } = req.body;
 
@@ -232,7 +227,6 @@ app.post("/autoData", (req, res) => {
       .json({ message: "Driver added successfully", id: result.insertId });
   });
 });
-
 app.get("/autoData", (req, res) => {
   const query = "SELECT id, Driver, Mobile, Password FROM autoData";
 
@@ -247,7 +241,6 @@ app.get("/autoData", (req, res) => {
     res.status(200).json(results);
   });
 });
-
 app.put("/autoData/:id", (req, res) => {
   const { id } = req.params;
   const { Driver, Mobile, Password } = req.body;
@@ -273,7 +266,6 @@ app.put("/autoData/:id", (req, res) => {
     res.status(200).json({ message: "Driver updated successfully" });
   });
 });
-
 app.delete("/autoData/:id", (req, res) => {
   const { id } = req.params;
 
@@ -362,8 +354,6 @@ app.post("/rideData", (req, res) => {
     }
   );
 });
-
-
 app.get("/rideData", (req, res) => {
   const query = "SELECT * FROM rideData";
 
@@ -378,7 +368,6 @@ app.get("/rideData", (req, res) => {
     res.status(200).json(results);
   });
 });
-
 app.get("/rideData/:id", (req, res) => {
   const { id } = req.params;
 
@@ -399,7 +388,6 @@ app.get("/rideData/:id", (req, res) => {
     res.status(200).json(result[0]);
   });
 });
-
 app.delete("/rideData/:id", (req, res) => {
   const { id } = req.params;
 
@@ -420,9 +408,6 @@ app.delete("/rideData/:id", (req, res) => {
     res.status(200).json({ message: "Ride deleted successfully" });
   });
 });
-
-
-
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
