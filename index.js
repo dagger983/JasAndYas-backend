@@ -408,6 +408,64 @@ app.delete("/rideData/:id", (req, res) => {
     res.status(200).json({ message: "Ride deleted successfully" });
   });
 });
+
+app.post('/otp', (req, res) => {
+  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP } = req.body;
+
+  const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+
+  db.query(query, [customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: 'Error inserting data', error: err });
+    } else {
+      res.status(200).json({ message: 'OTP record created successfully', data: result });
+    }
+  });
+});
+
+app.get('/otp', (req, res) => {
+  const { auto_driver } = req.query;
+
+  const query = 'SELECT * FROM otp_ok WHERE auto_driver = ?';
+  
+  db.query(query, [auto_driver], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: 'Error fetching data', error: err });
+    } else {
+      res.status(200).json(result);
+    }
+  });
+});
+
+app.put('/otp/:id', (req, res) => {
+  const { id } = req.params;
+  const { OTP } = req.body; // The OTP provided by the user for verification
+
+  const query = 'UPDATE otp_ok SET OTP = ?, updated_at = NOW() WHERE id = ?';
+
+  db.query(query, [OTP, id], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: 'Error updating OTP', error: err });
+    } else {
+      res.status(200).json({ message: 'OTP updated successfully', data: result });
+    }
+  });
+});
+
+app.delete('/otp/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM otp_ok WHERE id = ?';
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: 'Error deleting OTP record', error: err });
+    } else {
+      res.status(200).json({ message: 'OTP record deleted successfully', data: result });
+    }
+  });
+});4w
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
