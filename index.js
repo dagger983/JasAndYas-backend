@@ -464,7 +464,7 @@ app.delete('/otp/:id', (req, res) => {
       res.status(200).json({ message: 'OTP record deleted successfully', data: result });
     }
   });
-});4w
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
