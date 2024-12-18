@@ -294,7 +294,7 @@ app.post("/rideData", (req, res) => {
     auto_driver,
     driver_mobile,
     mode, // Add mode to the request body
-    otp,  // Add OTP field to request body for saving
+    OTP,  // Add OTP field to request body for saving
   } = req.body;
 
   // Check if all required fields are provided, including OTP
@@ -306,7 +306,7 @@ app.post("/rideData", (req, res) => {
     !auto_driver ||
     !driver_mobile ||
     !mode ||
-    !otp // Ensure OTP is included in the request body
+    !OTP // Ensure OTP is included in the request body
   ) {
     return res.status(400).json({ error: "All fields are required, including mode and OTP" });
   }
@@ -327,7 +327,7 @@ app.post("/rideData", (req, res) => {
       auto_driver,
       driver_mobile,
       mode, // Insert the provided mode value
-      otp  // Insert the OTP received in the request
+      OTP  // Insert the OTP received in the request
     ],
     (err, result) => {
       if (err) {
@@ -348,7 +348,7 @@ app.post("/rideData", (req, res) => {
           auto_driver,
           driver_mobile,
           mode, // Include mode in the response data
-          otp  // Include OTP in the response (optional)
+          OTP  // Include OTP in the response (optional)
         },
       });
     }
