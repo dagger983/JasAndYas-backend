@@ -131,7 +131,7 @@ app.post("/adminData", (req, res) => {
   const query = `
     INSERT INTO adminData 
     (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, distance, mode , OTP) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
   `;
 
   db.query(
