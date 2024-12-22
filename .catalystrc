@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "8861000000032001",
+      "name": "jasandyas",
+      "domain": {
+        "id": "50024000807",
+        "name": "jasandyas-60032216176.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60032216176",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

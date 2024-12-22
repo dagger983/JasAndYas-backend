@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const Razorpay = require("razorpay");
 const dotenv = require("dotenv");
 const mysql = require("mysql");
+const catalyst = require("zcatalyst-sdk-node");
 dotenv.config();
 
 const app = express();
@@ -424,9 +425,9 @@ app.post('/otp', (req, res) => {
 });
 
 app.get('/otp', (req, res) => {
-  const { auto_driver } = req.query;
 
-  const query = 'SELECT * FROM otp_ok WHERE auto_driver = ?';
+
+  const query = 'SELECT * FROM otp_ok';
   
   db.query(query, [auto_driver], (err, result) => {
     if (err) {
@@ -466,6 +467,8 @@ app.delete('/otp/:id', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
+
+app.listen(listenPort, () => {
+  console.log(`Server running on port ${listenPort}`);
 });
