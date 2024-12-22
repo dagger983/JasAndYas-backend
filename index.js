@@ -429,7 +429,7 @@ app.get('/otp', (req, res) => {
 
   const query = 'SELECT * FROM otp_ok';
   
-  db.query(query, [auto_driver], (err, result) => {
+  db.query(query, (err, result) => {
     if (err) {
       res.status(500).json({ message: 'Error fetching data', error: err });
     } else {
