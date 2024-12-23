@@ -276,11 +276,12 @@ app.post("/rideData", (req, res) => {
     drop_location,
     auto_driver,
     driver_mobile,
-    price, // Add mode to the request body
-    OTP, // Add OTP field to request body for saving
+    price,
+    OTP,
+    members, // Add members to the request body
   } = req.body;
 
-  // Check if all required fields are provided, including OTP
+  // Check if all required fields are provided, including OTP and members
   if (
     !customer ||
     !mobile ||
@@ -289,17 +290,18 @@ app.post("/rideData", (req, res) => {
     !auto_driver ||
     !driver_mobile ||
     !price ||
-    !OTP // Ensure OTP is included in the request body
+    !OTP ||
+    members === undefined // Ensure members is included in the request body
   ) {
     return res
       .status(400)
-      .json({ error: "All fields are required, including mode and OTP" });
+      .json({ error: "All fields are required, including members and OTP" });
   }
 
   const query = `
     INSERT INTO rideData 
-    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, otp) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, otp, members) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -311,8 +313,9 @@ app.post("/rideData", (req, res) => {
       drop_location,
       auto_driver,
       driver_mobile,
-      price, // Insert the provided mode value
+      price, // Insert the provided price value
       OTP, // Insert the OTP received in the request
+      members, // Insert members value
     ],
     (err, result) => {
       if (err) {
@@ -332,13 +335,15 @@ app.post("/rideData", (req, res) => {
           drop_location,
           auto_driver,
           driver_mobile,
-          price, // Include mode in the response data
+          price, // Include price in the response data
           OTP, // Include OTP in the response (optional)
+          members, // Include members in the response data
         },
       });
     }
   );
 });
+
 app.get("/rideData", (req, res) => {
   const query = "SELECT * FROM rideData";
 
