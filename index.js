@@ -409,9 +409,28 @@ app.post("/otp", (req, res) => {
     driver_mobile,
     price,
     OTP,
+    members, // Add members to the request body
   } = req.body;
 
-  const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+  // Check if all required fields are provided, including OTP and members
+  if (
+    !customer ||
+    !mobile ||
+    !pickup_location ||
+    !drop_location ||
+    !auto_driver ||
+    !driver_mobile ||
+    !price ||
+    !OTP ||
+    members === undefined // Ensure members is included in the request body
+  ) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required, including members and OTP" });
+  }
+
+  const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP, members, created_at, updated_at) 
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
   db.query(
     query,
@@ -424,6 +443,7 @@ app.post("/otp", (req, res) => {
       driver_mobile,
       price,
       OTP,
+      members, // Insert members value
     ],
     (err, result) => {
       if (err) {
