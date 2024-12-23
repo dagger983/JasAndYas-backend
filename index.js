@@ -504,6 +504,58 @@ app.delete("/otp/:id", (req, res) => {
   });
 });
 
+// Create a new driver login
+app.post('/drivers_login', (req, res) => {
+  const { driver_name, mobile, login_at } = req.body;
+  const query = 'INSERT INTO drivers_login (driver_name, mobile, login_at) VALUES (?, ?, ?)';
+
+  db.query(query, [driver_name, mobile, login_at], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to create driver login', error: err });
+    }
+    res.status(201).json({ message: 'Driver login created successfully', id: result.insertId });
+  });
+});
+
+// Get all driver logins
+app.get('/drivers_login', (req, res) => {
+  const query = 'SELECT * FROM drivers_login';
+
+  db.query(query, (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to fetch driver logins', error: err });
+    }
+    res.status(200).json(result);
+  });
+});
+
+
+
+app.post('/drivers_logout', (req, res) => {
+  const { driver_name, mobile, logout_at } = req.body;
+  const query = 'INSERT INTO drivers_logout (driver_name, mobile, logout_at) VALUES (?, ?, ?)';
+
+  db.query(query, [driver_name, mobile, logout_at], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to create driver logout', error: err });
+    }
+    res.status(201).json({ message: 'Driver logout created successfully', id: result.insertId });
+  });
+});
+
+// Get all driver logouts
+app.get('/drivers_logout', (req, res) => {
+  const query = 'SELECT * FROM drivers_logout';
+
+  db.query(query, (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to fetch driver logouts', error: err });
+    }
+    res.status(200).json(result);
+  });
+});
+
+
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
