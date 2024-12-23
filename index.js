@@ -101,11 +101,9 @@ app.post("/adminData", (req, res) => {
     username,
     mobile,
     pickup_location_name,
-    pickup_latitude,
-    pickup_longitude,
+   
     drop_location_name,
-    drop_latitude,
-    drop_longitude,
+  
     price,
     mode,
     OTP // Add mode to the request body
@@ -115,11 +113,9 @@ app.post("/adminData", (req, res) => {
     !username ||
     !mobile ||
     !pickup_location_name ||
-    !pickup_latitude ||
-    !pickup_longitude ||
+  
     !drop_location_name ||
-    !drop_latitude ||
-    !drop_longitude ||
+ 
     price === undefined ||
     !mode ||
     !OTP
@@ -131,8 +127,8 @@ app.post("/adminData", (req, res) => {
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name, pickup_latitude, pickup_longitude, drop_location_name, drop_latitude, drop_longitude, price, mode , OTP) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+    (username, mobile, pickup_location_name,  drop_location_name,  price, mode , OTP) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -141,11 +137,9 @@ app.post("/adminData", (req, res) => {
       username,
       mobile,
       pickup_location_name,
-      pickup_latitude,
-      pickup_longitude,
+    
       drop_location_name,
-      drop_latitude,
-      drop_longitude,
+    
       price,
       mode, 
       OTP
