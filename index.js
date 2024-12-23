@@ -294,7 +294,7 @@ app.post("/rideData", (req, res) => {
     drop_location,
     auto_driver,
     driver_mobile,
-    mode, // Add mode to the request body
+    price, // Add mode to the request body
     OTP,  // Add OTP field to request body for saving
   } = req.body;
 
@@ -306,7 +306,7 @@ app.post("/rideData", (req, res) => {
     !drop_location ||
     !auto_driver ||
     !driver_mobile ||
-    !mode ||
+    !price ||
     !OTP // Ensure OTP is included in the request body
   ) {
     return res.status(400).json({ error: "All fields are required, including mode and OTP" });
@@ -314,7 +314,7 @@ app.post("/rideData", (req, res) => {
 
   const query = `
     INSERT INTO rideData 
-    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, otp) 
+    (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, otp) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -327,7 +327,7 @@ app.post("/rideData", (req, res) => {
       drop_location,
       auto_driver,
       driver_mobile,
-      mode, // Insert the provided mode value
+      price, // Insert the provided mode value
       OTP  // Insert the OTP received in the request
     ],
     (err, result) => {
@@ -348,7 +348,7 @@ app.post("/rideData", (req, res) => {
           drop_location,
           auto_driver,
           driver_mobile,
-          mode, // Include mode in the response data
+          price, // Include mode in the response data
           OTP  // Include OTP in the response (optional)
         },
       });
@@ -411,11 +411,11 @@ app.delete("/rideData/:id", (req, res) => {
 });
 
 app.post('/otp', (req, res) => {
-  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP } = req.body;
+  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP } = req.body;
 
-  const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+  const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
-  db.query(query, [customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, mode, OTP], (err, result) => {
+  db.query(query, [customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP], (err, result) => {
     if (err) {
       res.status(500).json({ message: 'Error inserting data', error: err });
     } else {
