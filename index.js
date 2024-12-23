@@ -506,10 +506,10 @@ app.delete("/otp/:id", (req, res) => {
 
 // Create a new driver login
 app.post('/drivers_login', (req, res) => {
-  const { driver_name, mobile, login_at } = req.body;
-  const query = 'INSERT INTO drivers_login (driver_name, mobile, login_at) VALUES (?, ?, ?)';
+  const { driver_name, mobile} = req.body;
+  const query = 'INSERT INTO drivers_login (driver_name, mobile) VALUES (?, ?, ?)';
 
-  db.query(query, [driver_name, mobile, login_at], (err, result) => {
+  db.query(query, [driver_name, mobile], (err, result) => {
     if (err) {
       return res.status(500).json({ message: 'Failed to create driver login', error: err });
     }
@@ -532,10 +532,10 @@ app.get('/drivers_login', (req, res) => {
 
 
 app.post('/drivers_logout', (req, res) => {
-  const { driver_name, mobile, logout_at } = req.body;
-  const query = 'INSERT INTO drivers_logout (driver_name, mobile, logout_at) VALUES (?, ?, ?)';
+  const { driver_name, mobile} = req.body;
+  const query = 'INSERT INTO drivers_logout (driver_name, mobile) VALUES (?, ?, ?)';
 
-  db.query(query, [driver_name, mobile, logout_at], (err, result) => {
+  db.query(query, [driver_name, mobile, ], (err, result) => {
     if (err) {
       return res.status(500).json({ message: 'Failed to create driver logout', error: err });
     }
