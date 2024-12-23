@@ -101,23 +101,17 @@ app.post("/adminData", (req, res) => {
     username,
     mobile,
     pickup_location_name,
-   
     drop_location_name,
-  
     price,
-    mode,
-    OTP // Add mode to the request body
+    OTP, // Add mode to the request body
   } = req.body;
 
   if (
     !username ||
     !mobile ||
     !pickup_location_name ||
-  
     !drop_location_name ||
- 
     price === undefined ||
-    !mode ||
     !OTP
   ) {
     return res
@@ -127,23 +121,13 @@ app.post("/adminData", (req, res) => {
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name,  drop_location_name,  price, mode , OTP) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (username, mobile, pickup_location_name,  drop_location_name,  price, OTP) 
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     query,
-    [
-      username,
-      mobile,
-      pickup_location_name,
-    
-      drop_location_name,
-    
-      price,
-      mode, 
-      OTP
-    ],
+    [username, mobile, pickup_location_name, drop_location_name, price, OTP],
     (err, result) => {
       if (err) {
         console.error("Error inserting data into adminData:", err);
@@ -289,7 +273,7 @@ app.post("/rideData", (req, res) => {
     auto_driver,
     driver_mobile,
     price, // Add mode to the request body
-    OTP,  // Add OTP field to request body for saving
+    OTP, // Add OTP field to request body for saving
   } = req.body;
 
   // Check if all required fields are provided, including OTP
@@ -303,7 +287,9 @@ app.post("/rideData", (req, res) => {
     !price ||
     !OTP // Ensure OTP is included in the request body
   ) {
-    return res.status(400).json({ error: "All fields are required, including mode and OTP" });
+    return res
+      .status(400)
+      .json({ error: "All fields are required, including mode and OTP" });
   }
 
   const query = `
@@ -322,7 +308,7 @@ app.post("/rideData", (req, res) => {
       auto_driver,
       driver_mobile,
       price, // Insert the provided mode value
-      OTP  // Insert the OTP received in the request
+      OTP, // Insert the OTP received in the request
     ],
     (err, result) => {
       if (err) {
@@ -343,7 +329,7 @@ app.post("/rideData", (req, res) => {
           auto_driver,
           driver_mobile,
           price, // Include mode in the response data
-          OTP  // Include OTP in the response (optional)
+          OTP, // Include OTP in the response (optional)
         },
       });
     }
@@ -404,59 +390,87 @@ app.delete("/rideData/:id", (req, res) => {
   });
 });
 
-app.post('/otp', (req, res) => {
-  const { customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP } = req.body;
+app.post("/otp", (req, res) => {
+  const {
+    customer,
+    mobile,
+    pickup_location,
+    drop_location,
+    auto_driver,
+    driver_mobile,
+    price,
+    OTP,
+  } = req.body;
 
   const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
-  db.query(query, [customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP], (err, result) => {
-    if (err) {
-      res.status(500).json({ message: 'Error inserting data', error: err });
-    } else {
-      res.status(200).json({ message: 'OTP record created successfully', data: result });
+  db.query(
+    query,
+    [
+      customer,
+      mobile,
+      pickup_location,
+      drop_location,
+      auto_driver,
+      driver_mobile,
+      price,
+      OTP,
+    ],
+    (err, result) => {
+      if (err) {
+        res.status(500).json({ message: "Error inserting data", error: err });
+      } else {
+        res
+          .status(200)
+          .json({ message: "OTP record created successfully", data: result });
+      }
     }
-  });
+  );
 });
 
-app.get('/otp', (req, res) => {
+app.get("/otp", (req, res) => {
+  const query = "SELECT * FROM otp_ok";
 
-
-  const query = 'SELECT * FROM otp_ok';
-  
   db.query(query, (err, result) => {
     if (err) {
-      res.status(500).json({ message: 'Error fetching data', error: err });
+      res.status(500).json({ message: "Error fetching data", error: err });
     } else {
       res.status(200).json(result);
     }
   });
 });
 
-app.put('/otp/:id', (req, res) => {
+app.put("/otp/:id", (req, res) => {
   const { id } = req.params;
   const { OTP } = req.body; // The OTP provided by the user for verification
 
-  const query = 'UPDATE otp_ok SET OTP = ?, updated_at = NOW() WHERE id = ?';
+  const query = "UPDATE otp_ok SET OTP = ?, updated_at = NOW() WHERE id = ?";
 
   db.query(query, [OTP, id], (err, result) => {
     if (err) {
-      res.status(500).json({ message: 'Error updating OTP', error: err });
+      res.status(500).json({ message: "Error updating OTP", error: err });
     } else {
-      res.status(200).json({ message: 'OTP updated successfully', data: result });
+      res
+        .status(200)
+        .json({ message: "OTP updated successfully", data: result });
     }
   });
 });
 
-app.delete('/otp/:id', (req, res) => {
+app.delete("/otp/:id", (req, res) => {
   const { id } = req.params;
 
-  const query = 'DELETE FROM otp_ok WHERE id = ?';
+  const query = "DELETE FROM otp_ok WHERE id = ?";
 
   db.query(query, [id], (err, result) => {
     if (err) {
-      res.status(500).json({ message: 'Error deleting OTP record', error: err });
+      res
+        .status(500)
+        .json({ message: "Error deleting OTP record", error: err });
     } else {
-      res.status(200).json({ message: 'OTP record deleted successfully', data: result });
+      res
+        .status(200)
+        .json({ message: "OTP record deleted successfully", data: result });
     }
   });
 });
