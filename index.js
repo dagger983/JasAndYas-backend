@@ -103,31 +103,34 @@ app.post("/adminData", (req, res) => {
     pickup_location_name,
     drop_location_name,
     price,
-    OTP, // Add mode to the request body
+    OTP,
+    members, // Add members to the request body
   } = req.body;
 
+  // Validation for required fields
   if (
     !username ||
     !mobile ||
     !pickup_location_name ||
     !drop_location_name ||
     price === undefined ||
-    !OTP
+    !OTP ||
+    members === undefined // Ensure members is provided
   ) {
     return res
       .status(400)
-      .json({ error: "All fields are required, including distance and mode" });
+      .json({ error: "All fields are required, including price and members" });
   }
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name,  drop_location_name,  price, OTP) 
-    VALUES (?, ?, ?, ?, ?, ?)
+    (username, mobile, pickup_location_name, drop_location_name, price, OTP, members) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     query,
-    [username, mobile, pickup_location_name, drop_location_name, price, OTP],
+    [username, mobile, pickup_location_name, drop_location_name, price, OTP, members], // Include members in the values
     (err, result) => {
       if (err) {
         console.error("Error inserting data into adminData:", err);
@@ -143,6 +146,7 @@ app.post("/adminData", (req, res) => {
     }
   );
 });
+
 app.delete("/adminData/:id", (req, res) => {
   const { id } = req.params;
 
