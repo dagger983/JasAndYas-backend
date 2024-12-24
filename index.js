@@ -533,7 +533,7 @@ app.get('/drivers_login', (req, res) => {
 
 app.post('/drivers_logout', (req, res) => {
   const { driver_name, mobile} = req.body;
-  const query = 'INSERT INTO drivers_logout (driver_name, mobile) VALUES (?, ?, ?)';
+  const query = 'INSERT INTO drivers_logout (driver_name, mobile) VALUES (?, ?)';
 
   db.query(query, [driver_name, mobile, ], (err, result) => {
     if (err) {
