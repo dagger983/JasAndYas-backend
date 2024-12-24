@@ -566,6 +566,33 @@ app.get('/api/categories', (req, res) => {
   });
 });
 
+app.post('/api/categories', (req, res) => {
+  const { name, image_url } = req.body;
+
+  // Validate input
+  if (!name || !image_url) {
+    return res.status(400).json({ message: 'Name and image URL are required' });
+  }
+
+  // Insert new category into MySQL database
+  const query = 'INSERT INTO categories (name, image_url) VALUES (?, ?)';
+  db.query(query, [name, image_url], (err, result) => {
+    if (err) {
+      console.error('Error inserting category:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    // Send the newly added category back as response
+    res.status(201).json({
+      message: 'Category added successfully',
+      category: {
+        id: result.insertId, // The ID of the newly inserted category
+        name,
+        image_url,
+      },
+    });
+  });
+});
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
