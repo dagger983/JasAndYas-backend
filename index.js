@@ -555,6 +555,16 @@ app.get('/drivers_logout', (req, res) => {
   });
 });
 
+app.get('/api/categories', (req, res) => {
+  const query = 'SELECT id, name, image_url FROM categories';
+
+  db.query(query, (err, results) => {
+      if (err) {
+          return res.status(500).json({ message: 'Database query failed', error: err });
+      }
+      res.json(results); // Send the categories data in the response
+  });
+});
 
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
