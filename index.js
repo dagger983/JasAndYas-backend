@@ -543,7 +543,6 @@ app.post('/drivers_logout', (req, res) => {
   });
 });
 
-// Get all driver logouts
 app.get('/drivers_logout', (req, res) => {
   const query = 'SELECT * FROM drivers_logout';
 
@@ -593,6 +592,68 @@ app.post('/api/categories', (req, res) => {
     });
   });
 });
+
+app.post('/products', (req, res) => {
+  const { name, brand, price, category, keyword, image_url } = req.body;
+  const query = 'INSERT INTO products (name, brand, price, category, keyword, image_url) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(query, [name, brand, price, category, keyword, image_url], (err, result) => {
+      if (err) throw err;
+      res.status(201).send({ id: result.insertId, message: 'Product created successfully' });
+  });
+});
+
+// Read all products
+app.get('/products', (req, res) => {
+  const query = 'SELECT * FROM products';
+  db.query(query, (err, results) => {
+      if (err) throw err;
+      res.status(200).send(results);
+  });
+});
+
+// Read a single product by ID
+app.get('/products/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM products WHERE id = ?';
+  db.query(query, [id], (err, results) => {
+      if (err) throw err;
+      if (results.length === 0) {
+          return res.status(404).send({ message: 'Product not found' });
+      }
+      res.status(200).send(results[0]);
+  });
+});
+
+// Update a product by ID
+app.put('/products/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, brand, price, category, keyword, image_url } = req.body;
+  const query = `
+      UPDATE products 
+      SET name = ?, brand = ?, price = ?, category = ?, keyword = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`;
+  db.query(query, [name, brand, price, category, keyword, image_url, id], (err, result) => {
+      if (err) throw err;
+      if (result.affectedRows === 0) {
+          return res.status(404).send({ message: 'Product not found' });
+      }
+      res.status(200).send({ message: 'Product updated successfully' });
+  });
+});
+
+// Delete a product by ID
+app.delete('/products/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM products WHERE id = ?';
+  db.query(query, [id], (err, result) => {
+      if (err) throw err;
+      if (result.affectedRows === 0) {
+          return res.status(404).send({ message: 'Product not found' });
+      }
+      res.status(200).send({ message: 'Product deleted successfully' });
+  });
+});
+
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
