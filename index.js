@@ -507,7 +507,7 @@ app.delete("/otp/:id", (req, res) => {
 // Create a new driver login
 app.post('/drivers_login', (req, res) => {
   const { driver_name, mobile} = req.body;
-  const query = 'INSERT INTO drivers_login (driver_name, mobile) VALUES (?, ?, ?)';
+  const query = 'INSERT INTO drivers_login (driver_name, mobile) VALUES (?, ?)';
 
   db.query(query, [driver_name, mobile], (err, result) => {
     if (err) {
