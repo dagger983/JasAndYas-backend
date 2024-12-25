@@ -664,22 +664,19 @@ app.get('/user-expenses', (req, res) => {
 app.post('/update-wallet', async (req, res) => {
   const { mobile, amount } = req.body;
 
-  // Validate input
   if (!mobile || amount === undefined) {
     return res.status(400).json({ error: 'Invalid request payload' });
   }
 
   try {
-    // Start a database transaction for atomicity
     db.beginTransaction((transactionErr) => {
       if (transactionErr) {
         console.error('Transaction error:', transactionErr);
         return res.status(500).json({ error: 'Database error' });
       }
 
-      // Fetch current wallet balance
       db.query(
-        'SELECT wallet FROM users WHERE mobile = ? FOR UPDATE', // FOR UPDATE locks the row for the transaction
+        'SELECT wallet FROM users WHERE mobile = ? FOR UPDATE', 
         [mobile],
         (selectErr, results) => {
           if (selectErr) {
@@ -693,13 +690,8 @@ app.post('/update-wallet', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
           }
 
-          const currentWallet = results[0].wallet || 0;
-          const newWalletBalance = currentWallet + amount;
-
-          if (newWalletBalance < 0) {
-            db.rollback(() => {});
-            return res.status(400).json({ error: 'Insufficient wallet balance' });
-          }
+          // Replace the current wallet balance with the requested amount
+          const newWalletBalance = amount;
 
           // Update wallet balance in the database
           db.query(
@@ -736,6 +728,7 @@ app.post('/update-wallet', async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
