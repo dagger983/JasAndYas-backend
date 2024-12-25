@@ -662,46 +662,72 @@ app.get('/user-expenses', (req, res) => {
 });
 
 app.post('/update-wallet', async (req, res) => {
-  const { userId, amount } = req.body;
+  const { mobile, amount } = req.body;
 
-  if (!userId || amount === undefined) {
+  // Validate input
+  if (!mobile || amount === undefined) {
     return res.status(400).json({ error: 'Invalid request payload' });
   }
 
   try {
-    // Fetch current wallet balance
-    db.query('SELECT wallet FROM users WHERE id = ?', [userId], (err, results) => {
-      if (err) {
-        console.error('Error fetching user data:', err);
+    // Start a database transaction for atomicity
+    db.beginTransaction((transactionErr) => {
+      if (transactionErr) {
+        console.error('Transaction error:', transactionErr);
         return res.status(500).json({ error: 'Database error' });
       }
 
-      if (results.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      let currentWallet = results[0].wallet || 0;
-
-      // Calculate new wallet balance
-      let newWalletBalance = currentWallet + amount;
-
-      if (newWalletBalance < 0) {
-        return res.status(400).json({ error: 'Insufficient wallet balance' });
-      }
-
-      // Update wallet balance in the database
+      // Fetch current wallet balance
       db.query(
-        'UPDATE users SET wallet = ? WHERE id = ?',
-        [newWalletBalance, userId],
-        (err, result) => {
-          if (err) {
-            console.error('Error updating wallet:', err);
+        'SELECT wallet FROM users WHERE mobile = ? FOR UPDATE', // FOR UPDATE locks the row for the transaction
+        [mobile],
+        (selectErr, results) => {
+          if (selectErr) {
+            console.error('Error fetching user data:', selectErr);
+            db.rollback(() => {});
             return res.status(500).json({ error: 'Database error' });
           }
-          return res.status(200).json({
-            id: userId,
-            wallet: newWalletBalance,
-          });
+
+          if (results.length === 0) {
+            db.rollback(() => {});
+            return res.status(404).json({ error: 'User not found' });
+          }
+
+          const currentWallet = results[0].wallet || 0;
+          const newWalletBalance = currentWallet + amount;
+
+          if (newWalletBalance < 0) {
+            db.rollback(() => {});
+            return res.status(400).json({ error: 'Insufficient wallet balance' });
+          }
+
+          // Update wallet balance in the database
+          db.query(
+            'UPDATE users SET wallet = ? WHERE mobile = ?',
+            [newWalletBalance, mobile],
+            (updateErr) => {
+              if (updateErr) {
+                console.error('Error updating wallet:', updateErr);
+                db.rollback(() => {});
+                return res.status(500).json({ error: 'Database error' });
+              }
+
+              // Commit the transaction
+              db.commit((commitErr) => {
+                if (commitErr) {
+                  console.error('Error committing transaction:', commitErr);
+                  db.rollback(() => {});
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                // Success response
+                return res.status(200).json({
+                  mobile: mobile,
+                  wallet: newWalletBalance,
+                });
+              });
+            }
+          );
         }
       );
     });
