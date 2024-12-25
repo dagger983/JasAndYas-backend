@@ -81,7 +81,7 @@ app.post("/signup", (req, res) => {
   });
 });
 app.get("/users", (req, res) => {
-  const query = "SELECT id, username, mobile, password , pin FROM users";
+  const query = "SELECT id, username, mobile, password ,wallet , pin FROM users";
 
   db.query(query, (err, results) => {
     if (err) {
