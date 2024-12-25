@@ -11,15 +11,13 @@ const port = 3306;
 
 const cors = require("cors");
 
-// CORS options configuration
 const corsOptions = {
   origin: "*", // Allow all origins or specify the frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"], // Allow all required HTTP methods
   allowedHeaders: ["Content-Type", "Authorization"], // Add necessary headers
 };
 
-// Use CORS middleware
-app.options("*", cors(corsOptions)); // Handle preflight requests
+app.options("*", cors(corsOptions)); 
 app.use(cors(corsOptions));
 
 const db = mysql.createConnection({
@@ -504,7 +502,6 @@ app.delete("/otp/:id", (req, res) => {
   });
 });
 
-// Create a new driver login
 app.post('/drivers_login', (req, res) => {
   const { driver_name, mobile} = req.body;
   const query = 'INSERT INTO drivers_login (driver_name, mobile) VALUES (?, ?)';
@@ -517,7 +514,6 @@ app.post('/drivers_login', (req, res) => {
   });
 });
 
-// Get all driver logins
 app.get('/drivers_login', (req, res) => {
   const query = 'SELECT * FROM drivers_login';
 
@@ -528,8 +524,6 @@ app.get('/drivers_login', (req, res) => {
     res.status(200).json(result);
   });
 });
-
-
 
 app.post('/drivers_logout', (req, res) => {
   const { driver_name, mobile} = req.body;
@@ -602,7 +596,6 @@ app.post('/products', (req, res) => {
   });
 });
 
-// Read all products
 app.get('/products', (req, res) => {
   const query = 'SELECT * FROM products';
   db.query(query, (err, results) => {
@@ -611,7 +604,6 @@ app.get('/products', (req, res) => {
   });
 });
 
-// Read a single product by ID
 app.get('/products/:id', (req, res) => {
   const { id } = req.params;
   const query = 'SELECT * FROM products WHERE id = ?';
@@ -624,7 +616,6 @@ app.get('/products/:id', (req, res) => {
   });
 });
 
-// Update a product by ID
 app.put('/products/:id', (req, res) => {
   const { id } = req.params;
   const { name, brand, price, category, keyword, image_url } = req.body;
@@ -641,7 +632,6 @@ app.put('/products/:id', (req, res) => {
   });
 });
 
-// Delete a product by ID
 app.delete('/products/:id', (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM products WHERE id = ?';
@@ -664,7 +654,6 @@ app.post('/user-expenses', (req, res) => {
   });
 });
 
-// READ
 app.get('/user-expenses', (req, res) => {
   db.query('SELECT * FROM user_expense', (err, results) => {
       if (err) return res.status(500).send(err);
@@ -672,6 +661,55 @@ app.get('/user-expenses', (req, res) => {
   });
 });
 
+app.post('/update-wallet', async (req, res) => {
+  const { userId, amount } = req.body;
+
+  if (!userId || amount === undefined) {
+    return res.status(400).json({ error: 'Invalid request payload' });
+  }
+
+  try {
+    // Fetch current wallet balance
+    db.query('SELECT wallet FROM users WHERE id = ?', [userId], (err, results) => {
+      if (err) {
+        console.error('Error fetching user data:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      let currentWallet = results[0].wallet || 0;
+
+      // Calculate new wallet balance
+      let newWalletBalance = currentWallet + amount;
+
+      if (newWalletBalance < 0) {
+        return res.status(400).json({ error: 'Insufficient wallet balance' });
+      }
+
+      // Update wallet balance in the database
+      db.query(
+        'UPDATE users SET wallet = ? WHERE id = ?',
+        [newWalletBalance, userId],
+        (err, result) => {
+          if (err) {
+            console.error('Error updating wallet:', err);
+            return res.status(500).json({ error: 'Database error' });
+          }
+          return res.status(200).json({
+            id: userId,
+            wallet: newWalletBalance,
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
 
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
