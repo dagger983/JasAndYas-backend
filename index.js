@@ -654,6 +654,25 @@ app.delete('/products/:id', (req, res) => {
   });
 });
 
+
+app.post('/user-expenses', (req, res) => {
+  const { username, address, contact_number, temporary_contact_number, spend } = req.body;
+  const query = 'INSERT INTO user_expense (username, address, contact_number, temporary_contact_number, spend) VALUES (?, ?, ?, ?, ?)';
+  db.query(query, [username, address, contact_number, temporary_contact_number, spend], (err, result) => {
+      if (err) return res.status(500).send(err);
+      res.status(201).send({ id: result.insertId, message: 'User expense created successfully' });
+  });
+});
+
+// READ
+app.get('/user-expenses', (req, res) => {
+  db.query('SELECT * FROM user_expense', (err, results) => {
+      if (err) return res.status(500).send(err);
+      res.status(200).send(results);
+  });
+});
+
+
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
