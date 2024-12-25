@@ -96,11 +96,30 @@ app.get("/users", (req, res) => {
     res.status(200).json(results);
   });
 });
-app.post("/adminData", async (req, res) => {
-  const { username, mobile, pickup_location_name, drop_location_name, price, OTP, members } = req.body;
+app.post("/adminData", (req, res) => {
+  const {
+    username,
+    mobile,
+    pickup_location_name,
+    drop_location_name,
+    price,
+    OTP,
+    members, // Add members to the request body
+  } = req.body;
 
-  if (!username || !mobile || !pickup_location_name || !drop_location_name || price === undefined || !OTP || members === undefined) {
-    return res.status(400).json({ error: "All fields are required, including price and members" });
+  // Validation for required fields
+  if (
+    !username ||
+    !mobile ||
+    !pickup_location_name ||
+    !drop_location_name ||
+    price === undefined ||
+    !OTP ||
+    members === undefined // Ensure members is provided
+  ) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required, including price and members" });
   }
 
   const query = `
@@ -109,16 +128,24 @@ app.post("/adminData", async (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-  try {
-    const [result] = await db.promise().query(query, [username, mobile, pickup_location_name, drop_location_name, price, OTP, members]);
-    console.log(`Data inserted successfully with ID: ${result.insertId}`);
-    res.status(201).json({ message: "Data added successfully", id: result.insertId });
-  } catch (err) {
-    console.error("Error inserting data into adminData:", err);
-    res.status(500).json({ error: "Failed to add data", details: err });
-  }
-});
+  db.query(
+    query,
+    [username, mobile, pickup_location_name, drop_location_name, price, OTP, members], // Include members in the values
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting data into adminData:", err);
+        return res
+          .status(500)
+          .json({ error: "Failed to add data", details: err });
+      }
 
+      console.log(`Data inserted successfully with ID: ${result.insertId}`);
+      return res
+        .status(201)
+        .json({ message: "Data added successfully", id: result.insertId });
+    }
+  );
+});
 
 app.delete("/adminData/:id", (req, res) => {
   const { id } = req.params;
