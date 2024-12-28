@@ -729,6 +729,42 @@ app.post('/update-wallet', async (req, res) => {
   }
 });
 
+app.post("/ad_video", (req, res) => {
+  const { video } = req.body;
+  const sql = "INSERT INTO ad_video (video) VALUES (?)";
+  db.query(sql, [video], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to add video" });
+    } else {
+      res.status(201).json({ id: result.insertId, video });
+    }
+  });
+});
+
+app.get("/ad_video", (req, res) => {
+  const sql = "SELECT * FROM ad_video";
+  db.query(sql, (err, results) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to fetch videos" });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+app.delete("/ad_video/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM ad_video WHERE id = ?";
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to delete video" });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: "Video not found" });
+    } else {
+      res.status(200).json({ message: "Video deleted successfully" });
+    }
+  });
+});
 
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
