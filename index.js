@@ -2,29 +2,32 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const Razorpay = require("razorpay");
 const dotenv = require("dotenv");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const catalyst = require("zcatalyst-sdk-node");
 dotenv.config();
 
 const app = express();
-const port = 20144;
+const port = 33060;
 
 const cors = require("cors");
 
 const corsOptions = {
   origin: "*", // Allow all origins or specify the frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"], // Allow all required HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Add necessary headers
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true 
 };
 
 app.options("*", cors(corsOptions)); 
 app.use(cors(corsOptions));
 
+
 const db = mysql.createConnection({
-  host: "bjm3dhp5sleumkwpi8rv-mysql.services.clever-cloud.com",
-  user: "ujrq82bmaixr8wwe",
-  password: "FCdWBg9vGcnvkhWyEcwP",
-  database: "bjm3dhp5sleumkwpi8rv",
+  host: process.env.MYSQL_ADDON_HOST,
+  user: process.env.MYSQL_ADDON_USER,
+  password: process.env.MYSQL_ADDON_PASSWORD,
+  database: process.env.MYSQL_ADDON_DB,
+  port: process.env.MYSQL_ADDON_PORT,
 });
 
 db.connect((err) => {
