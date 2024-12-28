@@ -7,7 +7,7 @@ const catalyst = require("zcatalyst-sdk-node");
 dotenv.config();
 
 const app = express();
-const port = 3306;
+const port = 20144;
 
 const cors = require("cors");
 
@@ -21,10 +21,10 @@ app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 
 const db = mysql.createConnection({
-  host: "bf9cyakdy8vjfwfzk6fu-mysql.services.clever-cloud.com",
+  host: "bjm3dhp5sleumkwpi8rv-mysql.services.clever-cloud.com",
   user: "ujrq82bmaixr8wwe",
   password: "FCdWBg9vGcnvkhWyEcwP",
-  database: "bf9cyakdy8vjfwfzk6fu",
+  database: "bjm3dhp5sleumkwpi8rv",
 });
 
 db.connect((err) => {
