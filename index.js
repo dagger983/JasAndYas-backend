@@ -12,8 +12,8 @@ const port = 33060;
 const cors = require("cors");
 
 const corsOptions = {
-  origin: "*", // Allow all origins or specify the frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allow all required HTTP methods
+  origin: "*", 
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true 
 };
