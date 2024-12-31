@@ -253,21 +253,21 @@ app.put("/autoData/:id", (req, res) => {
 app.delete("/autoData/:id", async  (req, res) => {
   const { id } = req.params;
 
-  const driverId = req.params.id;
-
-  try {
-    // Example: Delete the driver from a database
-    const result = await database.deleteDriver(driverId);
-
-    if (result) {
-      res.status(200).send({ message: "Driver deleted successfully" });
-    } else {
-      res.status(404).send({ message: "Driver not found" });
+  const query = "DELETE FROM autoData WHERE id = ?";
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting driver:", err);
+      return res
+        .status(500)
+        .json({ error: "Failed to delete driver", details: err });
     }
-  } catch (error) {
-    console.error("Error deleting driver:", error);
-    res.status(500).send({ message: "Internal server error" });
-  }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    res.status(200).json({ message: "Driver deleted successfully" });
+  });
 });
 app.post("/rideData", (req, res) => {
   const {
