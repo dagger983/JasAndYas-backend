@@ -769,6 +769,76 @@ app.delete("/ad_video/:id", (req, res) => {
   });
 });
 
+
+app.get("/locations", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM predefined_locations");
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.get("/locations/:id", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM predefined_locations WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Location not found" });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.post("/locations", async (req, res) => {
+  const { name, latitude, longitude } = req.body;
+  if (!name || !latitude || !longitude) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const [result] = await db.query("INSERT INTO predefined_locations (name, latitude, longitude) VALUES (?, ?, ?)", 
+    [name, latitude, longitude]);
+
+    res.status(201).json({ id: result.insertId, name, latitude, longitude });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.put("/locations/:id", async (req, res) => {
+  const { name, latitude, longitude } = req.body;
+
+  try {
+    const [result] = await db.query("UPDATE predefined_locations SET name = ?, latitude = ?, longitude = ? WHERE id = ?", 
+    [name, latitude, longitude, req.params.id]);
+
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Location not found" });
+
+    res.json({ id: req.params.id, name, latitude, longitude });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.delete("/locations/:id", async (req, res) => {
+  try {
+    const [result] = await db.query("DELETE FROM predefined_locations WHERE id = ?", [req.params.id]);
+
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Location not found" });
+
+    res.json({ message: "Location deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+
+
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
