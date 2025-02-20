@@ -592,60 +592,49 @@ app.post('/api/categories', (req, res) => {
   });
 });
 
-app.post('/products', (req, res) => {
-  const { name, brand, price, category, keyword, image_url } = req.body;
-  const query = 'INSERT INTO products (name, brand, price, category, keyword, image_url) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(query, [name, brand, price, category, keyword, image_url], (err, result) => {
-      if (err) throw err;
-      res.status(201).send({ id: result.insertId, message: 'Product created successfully' });
+app.post("/products", (req, res) => {
+  const { name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4 } = req.body;
+  const sql = "INSERT INTO products (name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  db.query(sql, [name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ message: "Product created", id: result.insertId });
   });
 });
 
-app.get('/products', (req, res) => {
-  const query = 'SELECT * FROM products';
-  db.query(query, (err, results) => {
-      if (err) throw err;
-      res.status(200).send(results);
+// Read all products
+app.get("/products", (req, res) => {
+  db.query("SELECT * FROM products", (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
   });
 });
 
-app.get('/products/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'SELECT * FROM products WHERE id = ?';
-  db.query(query, [id], (err, results) => {
-      if (err) throw err;
-      if (results.length === 0) {
-          return res.status(404).send({ message: 'Product not found' });
-      }
-      res.status(200).send(results[0]);
+// Read a single product
+app.get("/products/:id", (req, res) => {
+  db.query("SELECT * FROM products WHERE id = ?", [req.params.id], (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (results.length === 0) return res.status(404).json({ message: "Product not found" });
+      res.json(results[0]);
   });
 });
 
-app.put('/products/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, brand, price, category, keyword, image_url } = req.body;
-  const query = `
-      UPDATE products 
-      SET name = ?, brand = ?, price = ?, category = ?, keyword = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?`;
-  db.query(query, [name, brand, price, category, keyword, image_url, id], (err, result) => {
-      if (err) throw err;
-      if (result.affectedRows === 0) {
-          return res.status(404).send({ message: 'Product not found' });
-      }
-      res.status(200).send({ message: 'Product updated successfully' });
+// Update a product
+app.put("/products/:id", (req, res) => {
+  const { name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4 } = req.body;
+  const sql = "UPDATE products SET name=?, brand=?, price=?, category=?, keyword=?, image_url1=?, image_url2=?, image_url3=?, image_url4=? WHERE id=?";
+  db.query(sql, [name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4, req.params.id], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (result.affectedRows === 0) return res.status(404).json({ message: "Product not found" });
+      res.json({ message: "Product updated" });
   });
 });
 
-app.delete('/products/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'DELETE FROM products WHERE id = ?';
-  db.query(query, [id], (err, result) => {
-      if (err) throw err;
-      if (result.affectedRows === 0) {
-          return res.status(404).send({ message: 'Product not found' });
-      }
-      res.status(200).send({ message: 'Product deleted successfully' });
+// Delete a product
+app.delete("/products/:id", (req, res) => {
+  db.query("DELETE FROM products WHERE id=?", [req.params.id], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (result.affectedRows === 0) return res.status(404).json({ message: "Product not found" });
+      res.json({ message: "Product deleted" });
   });
 });
 
