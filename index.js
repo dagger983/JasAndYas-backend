@@ -105,7 +105,8 @@ app.post("/adminData", (req, res) => {
     drop_location_name,
     price,
     OTP,
-    members, // Add members to the request body
+    members,
+    mode // Add members to the request body
   } = req.body;
 
   // Validation for required fields
@@ -116,6 +117,7 @@ app.post("/adminData", (req, res) => {
     !drop_location_name ||
     price === undefined ||
     !OTP ||
+    !mode ||
     members === undefined // Ensure members is provided
   ) {
     return res
@@ -125,13 +127,13 @@ app.post("/adminData", (req, res) => {
 
   const query = `
     INSERT INTO adminData 
-    (username, mobile, pickup_location_name, drop_location_name, price, OTP, members) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (username, mobile, pickup_location_name, drop_location_name, price, OTP, members,mode) 
+    VALUES (?, ?, ?, ?, ?, ?, ?,?)
   `;
 
   db.query(
     query,
-    [username, mobile, pickup_location_name, drop_location_name, price, OTP, members], // Include members in the values
+    [username, mobile, pickup_location_name, drop_location_name, price, OTP, members,mode], 
     (err, result) => {
       if (err) {
         console.error("Error inserting data into adminData:", err);
@@ -769,16 +771,36 @@ app.delete("/ad_video/:id", (req, res) => {
   });
 });
 
+app.get('/locations', async (req, res) => {
+  const { search } = req.query;
 
-app.get("/locations", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM predefined_locations");
-    res.json(rows);
+    let query = 'SELECT * FROM predefined_locations';
+    let values = [];
+
+    if (search) {
+      query = 'SELECT * FROM predefined_locations WHERE name LIKE ?';
+      values = [`%${search}%`];
+    }
+
+    // Ensure db.execute() is used with a promise
+    const [results] = await db.promise().execute(query, values);
+
+    // Ensure results is an array before sending it
+    if (!Array.isArray(results)) {
+      throw new Error('Unexpected database response format');
+    }
+
+    res.json(results);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Database error" });
+    console.error('Database error:', error);
+    res.status(500).json({ 
+      error: 'Error fetching locations', 
+      details: error.message 
+    });
   }
 });
+
 
 app.get("/locations/:id", async (req, res) => {
   try {

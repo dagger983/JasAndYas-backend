@@ -1,0 +1,87 @@
+[debug] [2025-02-19T13:55:11.157Z] : 
+[debug] [2025-02-19T13:55:11.158Z] : ----------------------------------------------------------------------
+[debug] [2025-02-19T13:55:11.158Z] : Command:      C:\Program Files\nodejs\node.exe C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\bin\catalyst.js deploy
+[debug] [2025-02-19T13:55:11.159Z] : CLI Version:  1.17.6
+[debug] [2025-02-19T13:55:11.159Z] : Platform:     win32
+[debug] [2025-02-19T13:55:11.159Z] : Node Version: v22.11.0
+[debug] [2025-02-19T13:55:11.159Z] : Time:         Wed Feb 19 2025 19:25:11 GMT+0530 (India Standard Time)
+[debug] [2025-02-19T13:55:11.159Z] : ----------------------------------------------------------------------
+[debug] [2025-02-19T13:55:11.159Z] : 
+[debug] [2025-02-19T13:55:12.091Z] : > authorizing via signed-in user option
+[debug] [2025-02-19T13:55:12.091Z] : > command requires scopes: ["ZohoCatalyst.projects.ALL","ZohoCatalyst.functions.ALL","ZohoCatalyst.webapp.ALL","ZohoCatalyst.appsail.Update"]
+[debug] [2025-02-19T13:55:12.103Z] : > refreshing access token <
+[debug] [2025-02-19T13:55:12.104Z] : >>>> HTTP REQUEST : POST https://accounts.zoho.in/oauth/v2/token 
+<request body omitted>
+
+[warn] [2025-02-19T13:55:12.152Z] : ‼ ENOTFOUND has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[debug] [2025-02-19T13:55:12.152Z] : API Error while firing request : getaddrinfo ENOTFOUND accounts.zoho.in
+
+[debug] [2025-02-19T13:55:12.152Z] : >>>> RETRYING
+
+[warn] [2025-02-19T13:55:12.155Z] : ‼ ENOTFOUND has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[debug] [2025-02-19T13:55:12.155Z] : API Error while firing request : getaddrinfo ENOTFOUND accounts.zoho.in
+
+[debug] [2025-02-19T13:55:12.156Z] : >>>> RETRYING
+
+[warn] [2025-02-19T13:55:12.157Z] : ‼ ENOTFOUND has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[debug] [2025-02-19T13:55:12.157Z] : API Error while firing request : getaddrinfo ENOTFOUND accounts.zoho.in
+
+[debug] [2025-02-19T13:55:12.157Z] : >>>> RETRYING
+
+[warn] [2025-02-19T13:55:12.159Z] : ‼ ENOTFOUND has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[error] [2025-02-19T13:55:12.162Z] : × API Error after retrying : getaddrinfo ENOTFOUND accounts.zoho.in
+[debug] [2025-02-19T13:55:12.162Z] : Error Stack: CatalystError: API Error after retrying : getaddrinfo ENOTFOUND accounts.zoho.in
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:162:23)
+    at Generator.next (<anonymous>)
+    at C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:31:71
+    at new Promise (<anonymous>)
+    at __awaiter (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:27:12)
+    at API._retry (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:160:16)
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:205:56)
+    at Generator.next (<anonymous>)
+    at C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:31:71
+    at new Promise (<anonymous>)
+[debug] [2025-02-19T13:55:12.162Z] : Original Error: Error: getaddrinfo ENOTFOUND accounts.zoho.in
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+[debug] [2025-02-19T13:55:12.162Z] : Error Status: 500
+[info] [2025-02-19T13:55:12.162Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2025-02-19T13:55:12.163Z] : × API Error: getaddrinfo ENOTFOUND accounts.zoho.in
+[debug] [2025-02-19T13:55:12.163Z] : Error Stack: CatalystError: API Error: getaddrinfo ENOTFOUND accounts.zoho.in
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:214:32)
+    at Generator.throw (<anonymous>)
+    at rejected (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:29:65)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[debug] [2025-02-19T13:55:12.163Z] : Original Error: Error: getaddrinfo ENOTFOUND accounts.zoho.in
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+[debug] [2025-02-19T13:55:12.163Z] : Error Status: 500
+[info] [2025-02-19T13:55:12.163Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2025-02-19T13:55:12.163Z] : × API Error: getaddrinfo ENOTFOUND accounts.zoho.in
+[debug] [2025-02-19T13:55:12.163Z] : Error Stack: CatalystError: API Error: getaddrinfo ENOTFOUND accounts.zoho.in
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:214:32)
+    at Generator.throw (<anonymous>)
+    at rejected (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:29:65)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[debug] [2025-02-19T13:55:12.163Z] : Original Error: Error: getaddrinfo ENOTFOUND accounts.zoho.in
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+[debug] [2025-02-19T13:55:12.163Z] : Error Status: 500
+[info] [2025-02-19T13:55:12.163Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2025-02-19T13:55:12.171Z] : × Error when refreshing the access token
+[debug] [2025-02-19T13:55:12.171Z] : Error Stack: CatalystError: Error when refreshing the access token
+    at C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\credential.js:139:23
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[debug] [2025-02-19T13:55:12.171Z] : Original Error: CatalystError: API Error after retrying : getaddrinfo ENOTFOUND accounts.zoho.in
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:162:23)
+    at Generator.next (<anonymous>)
+    at C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:31:71
+    at new Promise (<anonymous>)
+    at __awaiter (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:27:12)
+    at API._retry (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:160:16)
+    at API.<anonymous> (C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:205:56)
+    at Generator.next (<anonymous>)
+    at C:\Users\rateg\npm-global\node_modules\zcatalyst-cli\lib\internal\api.js:31:71
+    at new Promise (<anonymous>)
+[debug] [2025-02-19T13:55:12.172Z] : Error Status: 500
+[info] [2025-02-19T13:55:12.172Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[debug] [2025-02-19T13:55:12.173Z] : EXEC ENDED with event: Error (Unexpected), message: Error when refreshing the access token
+[debug] [2025-02-19T13:55:12.173Z] : TOTAL DURATION OF COMMAND EXEC : 84
+[debug] [2025-02-19T13:55:12.173Z] : Unable to initialise the log API
