@@ -97,6 +97,83 @@ app.get("/users", (req, res) => {
     res.status(200).json(results);
   });
 });
+
+app.put("/users/:id/wallet", (req, res) => {
+  const userId = req.params.id;
+  const { amount } = req.body;
+
+  if (!userId || isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
+  if (!amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ error: "Invalid amount" });
+  }
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error("Error starting transaction:", err);
+      return res.status(500).json({ error: "Failed to start transaction" });
+    }
+
+    const getBalanceQuery = "SELECT wallet FROM users WHERE id = ?";
+    
+    db.query(getBalanceQuery, [userId], (err, results) => {
+      if (err) {
+        return db.rollback(() => {
+          console.error("Error fetching wallet balance:", err);
+          res.status(500).json({ error: "Failed to fetch wallet balance" });
+        });
+      }
+
+      if (results.length === 0) {
+        return db.rollback(() => {
+          res.status(404).json({ error: "User not found" });
+        });
+      }
+
+      const currentBalance = results[0].wallet;
+
+      // Step 2: Check if balance is sufficient
+      if (currentBalance < amount) {
+        return db.rollback(() => {
+          res.status(400).json({ error: "Insufficient wallet balance" });
+        });
+      }
+
+      // Step 3: Deduct the amount
+      const updateWalletQuery = "UPDATE users SET wallet = wallet - ? WHERE id = ?";
+      db.query(updateWalletQuery, [amount, userId], (err, updateResults) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error("Error updating wallet:", err);
+            res.status(500).json({ error: "Failed to update wallet" });
+          });
+        }
+
+        if (updateResults.affectedRows === 0) {
+          return db.rollback(() => {
+            res.status(404).json({ error: "User not found" });
+          });
+        }
+
+        // Step 4: Commit transaction
+        db.commit((err) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error("Error committing transaction:", err);
+              res.status(500).json({ error: "Failed to commit transaction" });
+            });
+          }
+
+          res.status(200).json({ message: "Amount deducted successfully" });
+        });
+      });
+    });
+  });
+});
+
+
 app.post("/adminData", (req, res) => {
   const {
     username,
