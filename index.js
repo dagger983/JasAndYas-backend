@@ -134,7 +134,6 @@ app.put("/users/:id/wallet", (req, res) => {
 
       const currentBalance = results[0].wallet;
 
-      // Step 2: Check if balance is sufficient
       if (currentBalance < amount) {
         return db.rollback(() => {
           res.status(400).json({ error: "Insufficient wallet balance" });
@@ -226,7 +225,6 @@ app.post("/adminData", (req, res) => {
     }
   );
 });
-
 app.delete("/adminData/:id", (req, res) => {
   const { id } = req.params;
 
@@ -717,11 +715,47 @@ app.delete("/products/:id", (req, res) => {
 
 
 app.post('/user-expenses', (req, res) => {
-  const { username, address, contact_number, temporary_contact_number, spend } = req.body;
-  const query = 'INSERT INTO user_expense (username, address, contact_number, temporary_contact_number, spend) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [username, address, contact_number, temporary_contact_number, spend], (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.status(201).send({ id: result.insertId, message: 'User expense created successfully' });
+  const {
+    username,
+    address,
+    contact_number,
+    temporary_contact_number,
+    spend,
+    product_brand,
+    product_price,
+    quantity,
+    category_specific_details, // New field
+  } = req.body;
+
+  const query = `
+    INSERT INTO user_expense (
+      username,
+      address,
+      contact_number,
+      temporary_contact_number,
+      spend,
+      product_brand,
+      product_price,
+      quantity,
+      category_specific_details
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    username,
+    address,
+    contact_number,
+    temporary_contact_number,
+    spend,
+    product_brand || null,
+    product_price || null,
+    quantity || null,
+    category_specific_details || null,
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.status(201).send({ id: result.insertId, message: 'User expense created successfully' });
   });
 });
 
