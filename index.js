@@ -676,7 +676,6 @@ app.post("/products", (req, res) => {
   });
 });
 
-// Read all products
 app.get("/products", (req, res) => {
   db.query("SELECT * FROM products", (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -684,7 +683,6 @@ app.get("/products", (req, res) => {
   });
 });
 
-// Read a single product
 app.get("/products/:id", (req, res) => {
   db.query("SELECT * FROM products WHERE id = ?", [req.params.id], (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -693,7 +691,7 @@ app.get("/products/:id", (req, res) => {
   });
 });
 
-// Update a product
+
 app.put("/products/:id", (req, res) => {
   const { name, brand, price, category, keyword, image_url1, image_url2, image_url3, image_url4 } = req.body;
   const sql = "UPDATE products SET name=?, brand=?, price=?, category=?, keyword=?, image_url1=?, image_url2=?, image_url3=?, image_url4=? WHERE id=?";
@@ -704,7 +702,7 @@ app.put("/products/:id", (req, res) => {
   });
 });
 
-// Delete a product
+
 app.delete("/products/:id", (req, res) => {
   db.query("DELETE FROM products WHERE id=?", [req.params.id], (err, result) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -766,73 +764,62 @@ app.get('/user-expenses', (req, res) => {
   });
 });
 
-app.post('/update-wallet', async (req, res) => {
-  const { mobile, amount } = req.body;
+app.post("/update-wallet", async (req, res) => {
+  const { id, mobile, amount } = req.body;
 
-  if (!mobile || amount === undefined) {
-    return res.status(400).json({ error: 'Invalid request payload' });
+  if (!id || !mobile || amount === undefined) {
+    return res.status(400).json({ error: "Invalid request payload" });
   }
 
   try {
-    db.beginTransaction((transactionErr) => {
-      if (transactionErr) {
-        console.error('Transaction error:', transactionErr);
-        return res.status(500).json({ error: 'Database error' });
-      }
+    // Start a transaction
+    await new Promise((resolve, reject) => {
+      db.beginTransaction((err) => (err ? reject(err) : resolve()));
+    });
 
+    // Fetch existing wallet balance with row lock
+    const results = await new Promise((resolve, reject) => {
       db.query(
-        'SELECT wallet FROM users WHERE mobile = ? FOR UPDATE', 
-        [mobile],
-        (selectErr, results) => {
-          if (selectErr) {
-            console.error('Error fetching user data:', selectErr);
-            db.rollback(() => {});
-            return res.status(500).json({ error: 'Database error' });
-          }
-
-          if (results.length === 0) {
-            db.rollback(() => {});
-            return res.status(404).json({ error: 'User not found' });
-          }
-
-          // Replace the current wallet balance with the requested amount
-          const newWalletBalance = amount;
-
-          // Update wallet balance in the database
-          db.query(
-            'UPDATE users SET wallet = ? WHERE mobile = ?',
-            [newWalletBalance, mobile],
-            (updateErr) => {
-              if (updateErr) {
-                console.error('Error updating wallet:', updateErr);
-                db.rollback(() => {});
-                return res.status(500).json({ error: 'Database error' });
-              }
-
-              // Commit the transaction
-              db.commit((commitErr) => {
-                if (commitErr) {
-                  console.error('Error committing transaction:', commitErr);
-                  db.rollback(() => {});
-                  return res.status(500).json({ error: 'Database error' });
-                }
-
-                // Success response
-                return res.status(200).json({
-                  mobile: mobile,
-                  wallet: newWalletBalance,
-                });
-              });
-            }
-          );
-        }
+        "SELECT wallet FROM users WHERE id = ? AND mobile = ? FOR UPDATE",
+        [id, mobile],
+        (err, rows) => (err ? reject(err) : resolve(rows))
       );
     });
+
+    if (results.length === 0) {
+      await new Promise((resolve, reject) => db.rollback(() => resolve()));
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let currentBalance = results[0].wallet || 0; // Handle NULL values
+    let newWalletBalance = currentBalance + amount;
+
+    // Update wallet balance
+    await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE users SET wallet = ? WHERE id = ? AND mobile = ?",
+        [newWalletBalance, id, mobile],
+        (err) => (err ? reject(err) : resolve())
+      );
+    });
+
+    // Commit transaction
+    await new Promise((resolve, reject) => {
+      db.commit((err) => (err ? reject(err) : resolve()));
+    });
+
+    return res.status(200).json({
+      message: "Wallet updated successfully",
+      mobile: mobile,
+      wallet: newWalletBalance,
+    });
   } catch (error) {
-    console.error('Unexpected error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error("Error updating wallet:", error);
+    await new Promise((resolve, reject) => db.rollback(() => resolve()));
+    return res.status(500).json({ error: "Server error" });
   }
 });
+
 
 app.post("/ad_video", (req, res) => {
   const { video } = req.body;
