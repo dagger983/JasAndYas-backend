@@ -28,6 +28,9 @@ const db = mysql.createConnection({
   password: process.env.MYSQL_ADDON_PASSWORD,
   database: process.env.MYSQL_ADDON_DB,
   port: process.env.MYSQL_ADDON_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,  // Adjust as needed
+  queueLimit: 0
 });
 
 db.connect((err) => {
