@@ -22,7 +22,7 @@ app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.MYSQL_ADDON_HOST,
   user: process.env.MYSQL_ADDON_USER,
   password: process.env.MYSQL_ADDON_PASSWORD,
