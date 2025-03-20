@@ -825,14 +825,24 @@ app.post("/update-wallet", async (req, res) => {
 
 
 app.post("/ad_video", (req, res) => {
-  const { video } = req.body;
-  const sql = "INSERT INTO ad_video (video) VALUES (?)";
-  db.query(sql, [video], (err, result) => {
+  const { video, duration } = req.body;
+
+  // Validate input
+  if (!video || typeof video !== "string") {
+    return res.status(400).json({ error: "Invalid video input" });
+  }
+  if (!duration || typeof duration !== "number") {
+    return res.status(400).json({ error: "Invalid duration input" });
+  }
+
+  const sql = "INSERT INTO ad_video (video, duration) VALUES (?, ?)";
+
+  db.query(sql, [video, duration], (err, result) => {
     if (err) {
-      res.status(500).json({ error: "Failed to add video" });
-    } else {
-      res.status(201).json({ id: result.insertId, video });
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Failed to add video" });
     }
+    res.status(201).json({ id: result.insertId, video, duration });
   });
 });
 
