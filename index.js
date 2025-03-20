@@ -827,13 +827,7 @@ app.post("/update-wallet", async (req, res) => {
 app.post("/ad_video", (req, res) => {
   const { video, duration } = req.body;
 
-  // Validate input
-  if (!video || typeof video !== "string") {
-    return res.status(400).json({ error: "Invalid video input" });
-  }
-  if (!duration || typeof duration !== "number") {
-    return res.status(400).json({ error: "Invalid duration input" });
-  }
+ 
 
   const sql = "INSERT INTO ad_video (video, duration) VALUES (?, ?)";
 
