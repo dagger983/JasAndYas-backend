@@ -780,7 +780,7 @@ app.post("/update-wallet", async (req, res) => {
       db.beginTransaction((err) => (err ? reject(err) : resolve()));
     });
 
-    // Fetch existing wallet balance with row lock
+    // Check if user exists with row lock
     const results = await new Promise((resolve, reject) => {
       db.query(
         "SELECT wallet FROM users WHERE id = ? AND mobile = ? FOR UPDATE",
@@ -794,14 +794,11 @@ app.post("/update-wallet", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    let currentBalance = results[0].wallet || 0; // Handle NULL values
-    let newWalletBalance = currentBalance + amount;
-
-    // Update wallet balance
+    // Set wallet balance to the provided amount
     await new Promise((resolve, reject) => {
       db.query(
         "UPDATE users SET wallet = ? WHERE id = ? AND mobile = ?",
-        [newWalletBalance, id, mobile],
+        [amount, id, mobile],
         (err) => (err ? reject(err) : resolve())
       );
     });
@@ -814,7 +811,7 @@ app.post("/update-wallet", async (req, res) => {
     return res.status(200).json({
       message: "Wallet updated successfully",
       mobile: mobile,
-      wallet: newWalletBalance,
+      wallet: amount,
     });
   } catch (error) {
     console.error("Error updating wallet:", error);
@@ -822,6 +819,7 @@ app.post("/update-wallet", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
+
 
 
 app.post("/ad_video", (req, res) => {
