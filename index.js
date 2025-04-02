@@ -490,10 +490,10 @@ app.post("/otp", (req, res) => {
     driver_mobile,
     price,
     OTP,
-    members, // Add members to the request body
+    members, // Ensure members is included
   } = req.body;
 
-  // Check if all required fields are provided, including OTP and members
+  // Check if all required fields are provided
   if (
     !customer ||
     !mobile ||
@@ -503,12 +503,15 @@ app.post("/otp", (req, res) => {
     !driver_mobile ||
     !price ||
     !OTP ||
-    members === undefined // Ensure members is included in the request body
+    members === undefined
   ) {
     return res
       .status(400)
       .json({ error: "All fields are required, including members and OTP" });
   }
+
+  // Remove non-numeric characters from price (e.g., ₹ symbol)
+  const cleanedPrice = parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
 
   const query = `INSERT INTO otp_ok (customer, mobile, pickup_location, drop_location, auto_driver, driver_mobile, price, OTP, members, created_at, updated_at) 
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
@@ -522,7 +525,7 @@ app.post("/otp", (req, res) => {
       drop_location,
       auto_driver,
       driver_mobile,
-      price,
+      cleanedPrice, // Insert cleaned price
       OTP,
       members, // Insert members value
     ],
@@ -537,6 +540,7 @@ app.post("/otp", (req, res) => {
     }
   );
 });
+
 
 app.get("/otp", (req, res) => {
   const query = "SELECT * FROM otp_ok";
